@@ -59,7 +59,8 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Login Successfull',
             'access_token' => $token,
-            'role' => $user->role
+            'role' => $user->role,
+            'user_details' => $user,
         ]);
     }
 
@@ -72,7 +73,6 @@ class AuthController extends Controller
             'message' => 'logged out successfully'
         ]);
     }
-
     public function user(Request $request){
         return response()->json([
             'status' => true,
