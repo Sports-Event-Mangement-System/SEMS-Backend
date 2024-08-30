@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\TournamentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,3 +30,5 @@ Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum' 
 Route::post('/store/contacts', [ContactController::class, 'store']);
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
+/************************************************************** Tournaments  *************************************************************/
+Route::post('/store/tournaments', [TournamentController::class, 'store']);
