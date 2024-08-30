@@ -24,6 +24,7 @@ class StoreTournamentRequest extends FormRequest
         return [
             't_name' => 'required',
             't_description' => 'required',
+            'prize_pool' => 'nullable|float',
             't_logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Added image validation
             't_type' => 'nullable',
             'ts_date' => 'required|date',

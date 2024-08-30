@@ -14,8 +14,11 @@ class TournamentController extends Controller
      * @param  StoreTournamentRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreTournamentRequest $request)
+    public function store( StoreTournamentRequest $request )
     {
+        // Validate the request
+        $validatedData = $request->validated();
+
         // Handle file upload
         $filename = null;
         if ($request->hasFile('t_logo')) {
@@ -26,20 +29,21 @@ class TournamentController extends Controller
 
         // Create the tournament
         $tournament = Tournament::create([
-            't_name' => $request->t_name,
-            't_description' => $request->t_description,
+            't_name' => $validatedData['t_name'],
+            't_description' => $validatedData['t_description'],
             't_logo' => $filename,
-            't_type' => $request->t_type,
-            'ts_date' => $request->ts_date,
-            'te_date' => $request->te_date,
-            'rs_date' => $request->rs_date,
-            're_date' => $request->re_date,
-            'phone_number' => $request->phone_number,
-            'email' => $request->email,
-            'address' => $request->address,
-            'status' => $request->status,
-            'team_number' => $request->team_number,
-            'featured' => $request->featured,
+            'prize_pool' => $validatedData['prize_pool'],
+            't_type' => $validatedData['t_type'],
+            'ts_date' => $validatedData['ts_date'],
+            'te_date' => $validatedData['te_date'],
+            'rs_date' => $validatedData['rs_date'],
+            're_date' => $validatedData['re_date'],
+            'phone_number' => $validatedData['phone_number'],
+            'email' => $validatedData['email'],
+            'address' => $validatedData['address'],
+            'status' => $validatedData['status'],
+            'team_number' => $validatedData['team_number'],
+            'featured' => $validatedData['featured'],
         ]);
 
         return response()->json([
@@ -48,4 +52,5 @@ class TournamentController extends Controller
             'status' => true
         ]);
     }
+
 }
