@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tournament extends Model
 {
-    protected $table = "tournaments";
-    protected $guarded=[
-        'id'
-    ];
     use HasFactory;
+    protected $table = "tournaments";
+
+    protected $guarded = ['id'];
+    protected $casts = [
+        't_logo' => 'array',
+    ];
 }
