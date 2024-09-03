@@ -55,6 +55,7 @@ class AuthController extends Controller
             ], 401);
         }
         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+        $user['remember_me'] = $request->remember_me;
         return response()->json([
             'status' => true,
             'message' => 'Login Successfull',
@@ -78,6 +79,21 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'User Data',
             'data' => auth()->user()
+        ]);
+    }
+
+    public function updateUser(Request $request){
+        $user = User::find($request->id);
+        $updateUserData = $request->validate([
+            'name' => 'required|string',
+            'username' => 'required|string',
+            'email' => 'required|string|email|unique:users,email,'.$user->id,
+            'phone_number' => ['required', 'max:10'],
+        ]);
+        $user->updateOrFail($updateUserData);
+        return response()->json([
+            'status' => true,
+            'message' => 'User ' . $user->name . ' Updated Succesfully',
         ]);
     }
 }
