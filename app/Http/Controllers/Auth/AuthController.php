@@ -87,14 +87,14 @@ class AuthController extends Controller
         $user = User::find($request->id);
         $updateUserData = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string',
+            'username' => 'required|string|unique:users,username,'.$user->id,
             'email' => 'required|string|email|unique:users,email,'.$user->id,
-            'phone_number' => ['required', 'max:10'],
+            'phone_number' => ['required', 'min:10','max:11'],
         ]);
         $user->updateOrFail($updateUserData);
         return response()->json([
             'status' => true,
-            'message' => 'User ' . $user->name . ' Updated Succesfully',
+            'message' => 'User ' . $user->username . ' Updated Succesfully',
             'user_details' => $user,
         ]);
     }
