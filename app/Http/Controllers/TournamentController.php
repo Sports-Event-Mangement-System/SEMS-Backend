@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class TournamentController extends Controller
 {
+    public function index()
+    {
+        $tournaments = Tournament::all();
+        return response()->json([
+            'tournaments' => $tournaments,
+            'status' => true
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

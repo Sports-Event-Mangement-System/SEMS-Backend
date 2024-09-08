@@ -32,4 +32,5 @@ Route::post('/store/contacts', [ContactController::class, 'store']);
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
 /************************************************************** Tournaments  *************************************************************/
-Route::post('/store/tournaments', [TournamentController::class, 'store']);
+Route::get('/tournaments', [TournamentController::class, 'index']);
+Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware('auth:sanctum' );
