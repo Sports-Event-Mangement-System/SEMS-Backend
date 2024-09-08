@@ -15,13 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('t_name');
             $table->string('t_description');
-            $table->string('t_logo');
+            $table->string('t_logo')->nullable();
             $table->string('prize_pool')->nullable();
-            $table->enum('t_type',['indoor','outdoor'])->default('outdoor');
-            $table->timestamp('ts_date')->nullable();
-            $table->timestamp('te_date')->nullable();
-            $table->timestamp('rs_date')->nullable();
-            $table->timestamp('re_date')->nullable();
+            $table->date('ts_date')->nullable();
+            $table->date('te_date')->nullable();
+            $table->date('rs_date')->nullable();
+            $table->date('re_date')->nullable();
             $table->string('phone_number');
             $table->string('email')->nullable();
             $table->string('address');

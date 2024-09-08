@@ -33,7 +33,6 @@ class TournamentController extends Controller
             't_description' => $validatedData['t_description'],
             't_logo' => $filename,
             'prize_pool' => $validatedData['prize_pool'],
-            't_type' => $validatedData['t_type'],
             'ts_date' => $validatedData['ts_date'],
             'te_date' => $validatedData['te_date'],
             'rs_date' => $validatedData['rs_date'],
