@@ -28,7 +28,7 @@ Route::get('/user/{id}', [AuthController::class, 'user'])->middleware( 'auth:san
 Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware( 'auth:sanctum' );
 
 /************************************************************** Contacts Form *************************************************************/
-Route::post('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
+Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
 Route::post('/store/contacts', [ContactController::class, 'store']);
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
