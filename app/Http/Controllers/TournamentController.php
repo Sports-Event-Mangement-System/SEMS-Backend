@@ -11,6 +11,10 @@ class TournamentController extends Controller
     public function index()
     {
         $tournaments = Tournament::all();
+        foreach ($tournaments as $tournament) {
+            // Generate the full image URL
+            $tournament->image_url = url('uploads/tournaments/' . $tournament->t_logo);
+        }
         return response()->json([
             'tournaments' => $tournaments,
             'status' => true

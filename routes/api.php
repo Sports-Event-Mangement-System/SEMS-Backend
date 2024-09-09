@@ -23,14 +23,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('/user/{id}', [AuthController::class, 'user'])->middleware('auth:sanctum' );
-Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware('auth:sanctum');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware( 'auth:sanctum' );
+Route::get('/user/{id}', [AuthController::class, 'user'])->middleware( 'auth:sanctum' );
+Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware( 'auth:sanctum' );
 
 /************************************************************** Contacts Form *************************************************************/
+Route::post('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
 Route::post('/store/contacts', [ContactController::class, 'store']);
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
 /************************************************************** Tournaments  *************************************************************/
 Route::get('/tournaments', [TournamentController::class, 'index']);
-Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware('auth:sanctum' );
+Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware( 'auth:sanctum' );
