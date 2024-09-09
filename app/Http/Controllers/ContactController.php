@@ -7,6 +7,13 @@ use App\Models\Contact;
 
 class ContactController extends Controller
 {
+    public function index(){
+        $contacts = Contact::all();
+        return response()->json([
+            'contacts' => $contacts,
+            'status' => true
+        ]);
+    }
     public function store(ContactRequest $request)
     {
         $validatedData = $request->validated();
