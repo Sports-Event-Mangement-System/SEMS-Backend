@@ -29,7 +29,9 @@ Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middlew
 
 /************************************************************** Contacts Form *************************************************************/
 Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
+Route::get('/show/contacts/{id}', [ContactController::class, 'show'])->middleware( 'auth:sanctum' );
 Route::post('/store/contacts', [ContactController::class, 'store']);
+Route::post('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware( 'auth:sanctum' );
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
 /************************************************************** Tournaments  *************************************************************/
