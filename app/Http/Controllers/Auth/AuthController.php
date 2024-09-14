@@ -98,4 +98,32 @@ class AuthController extends Controller
             'user_details' => $user,
         ]);
     }
+
+    public function updateProfileImage(Request $request)
+    {
+        $user = User::find($request->id);
+        $updateUserData = $request->validate([
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        // Check if user already has a profile image
+        if ($user->profile_image) {
+            $existingImagePath = public_path('uploads/profiles/' . $user->profile_image);
+            if (file_exists($existingImagePath)) {
+                unlink($existingImagePath);
+            }
+        }
+
+        $profile_image = $request->file('profile_image');
+        $profile_image_name = time() . '.' . $profile_image->extension();
+        $profile_image->move(public_path('uploads/profiles'), $profile_image_name);
+        $user->profile_image = $profile_image_name;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => $user->username . ' Profile Image Updated Successfully',
+            'user_details' => $user,
+        ]);
+    }
 }

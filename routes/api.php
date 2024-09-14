@@ -26,6 +26,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware( 'auth:sanctum' );
 Route::get('/user/{id}', [AuthController::class, 'user'])->middleware( 'auth:sanctum' );
 Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware( 'auth:sanctum' );
+Route::post('/update/profile_image/{id}', [AuthController::class, 'updateProfileImage'])->middleware( 'auth:sanctum' );
+// Route::post('/update/password/{id}', [AuthController::class, 'updatePassword'])->middleware( 'auth:sanctum' );
 
 /************************************************************** Contacts Form *************************************************************/
 Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
