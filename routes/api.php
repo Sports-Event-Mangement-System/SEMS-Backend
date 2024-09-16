@@ -39,3 +39,6 @@ Route::post('/delete/contacts/{id}', [ContactController::class, 'destroy'])->mid
 /************************************************************** Tournaments  *************************************************************/
 Route::get('/tournaments', [TournamentController::class, 'index']);
 Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware( 'auth:sanctum' );
+Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware( 'auth:sanctum' );
+Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware( 'auth:sanctum' );
+Route::post('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware( 'auth:sanctum' );
