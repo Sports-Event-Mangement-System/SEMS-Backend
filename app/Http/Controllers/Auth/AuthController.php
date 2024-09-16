@@ -7,11 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password as RulesPassword;
-
+use \Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $registerUserData = $request->validate([
             'name' => 'required|string',
@@ -42,7 +42,8 @@ class AuthController extends Controller
             'message' => 'User ' . $user->name . ' Created Succesfully',
         ]);
     }
-    public function login(Request $request)
+
+    public function login(Request $request): JsonResponse
     {
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
@@ -65,7 +66,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
         auth()->user()->tokens()->delete();
 
@@ -74,7 +75,9 @@ class AuthController extends Controller
             'message' => 'logged out successfully'
         ]);
     }
-    public function user(Request $request){
+
+    public function user(Request $request): JsonResponse
+    {
         $user = User::find($request->id);
         return response()->json([
             'status' => true,
@@ -83,13 +86,14 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateUser(Request $request){
+    public function updateUser(Request $request): JsonResponse
+    {
         $user = User::find($request->id);
         $updateUserData = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:users,username,'.$user->id,
-            'email' => 'required|string|email|unique:users,email,'.$user->id,
-            'phone_number' => ['required', 'min:10','max:11'],
+            'username' => 'required|string|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|unique:users,email,' . $user->id,
+            'phone_number' => ['required', 'min:10', 'max:11'],
         ]);
         $user->updateOrFail($updateUserData);
         return response()->json([
@@ -99,10 +103,10 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfileImage(Request $request)
+    public function updateProfileImage(Request $request): JsonResponse
     {
         $user = User::find($request->id);
-        $updateUserData = $request->validate([
+        $request->validate([
             'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -123,7 +127,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => $user->username . ' Profile Image Updated Successfully',
-            'user_details' => $user,
+            'profile_img_url' => url('uploads/profiles/' . $profile_image_name),
         ]);
     }
 }
