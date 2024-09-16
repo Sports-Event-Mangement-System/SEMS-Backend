@@ -33,7 +33,7 @@ Route::post('/update/profile_image/{id}', [AuthController::class, 'updateProfile
 Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
 Route::get('/show/contacts/{id}', [ContactController::class, 'show'])->middleware( 'auth:sanctum' );
 Route::post('/store/contacts', [ContactController::class, 'store']);
-Route::post('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware( 'auth:sanctum' );
+Route::delete('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware( 'auth:sanctum' );
 // Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
 /************************************************************** Tournaments  *************************************************************/
@@ -41,4 +41,4 @@ Route::get('/tournaments', [TournamentController::class, 'index']);
 Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware( 'auth:sanctum' );
 Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware( 'auth:sanctum' );
 Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware( 'auth:sanctum' );
-Route::post('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware( 'auth:sanctum' );
+Route::delete('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware( 'auth:sanctum' );
