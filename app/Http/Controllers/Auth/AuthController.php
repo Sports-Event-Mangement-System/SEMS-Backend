@@ -130,4 +130,19 @@ class AuthController extends Controller
             'profile_img_url' => url('uploads/profiles/' . $profile_image_name),
         ]);
     }
+    public function deleteProfileImage($id): JsonResponse
+    {
+        $user = User::find($id);
+        $existingImagePath = public_path('uploads/profiles/' . $user->profile_image);
+        if (file_exists($existingImagePath)) {
+            unlink($existingImagePath);
+        }
+        $user->profile_image = null;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => $user->username . ' Profile Image Deleted Successfully',
+        ]);
+    }
 }
