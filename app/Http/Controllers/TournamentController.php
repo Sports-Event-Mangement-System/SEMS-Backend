@@ -10,7 +10,7 @@ use \Illuminate\Http\JsonResponse;
 
 class TournamentController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $tournaments = Tournament::all();
         foreach ($tournaments as $tournament) {
