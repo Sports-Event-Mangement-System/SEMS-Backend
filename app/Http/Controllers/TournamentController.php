@@ -6,7 +6,7 @@ use App\Http\Requests\StoreTournamentRequest;
 use App\Http\Requests\UpdateTournamentRequest;
 use App\Models\Tournament;
 use Illuminate\Http\Request;
-use \Illuminate\Http\JsonResponse;
+use Illuminate\Http\JsonResponse;
 
 class TournamentController extends Controller
 {
@@ -28,7 +28,7 @@ class TournamentController extends Controller
      *
      * @param  StoreTournamentRequest  $request
      */
-    public function store( StoreTournamentRequest $request ): JsonResponse
+    public function store(StoreTournamentRequest $request): JsonResponse
     {
         // Validate the request
         $validatedData = $request->validated();
@@ -118,6 +118,28 @@ class TournamentController extends Controller
         $tournament->delete();
         return response()->json([
             'message' => 'Tournament deleted successfully',
+            'status' => true
+        ]);
+    }
+
+
+    public function updateStatus(Request $request, $id): JsonResponse
+    {
+        $tournament = Tournament::find($id);
+        if( $tournament == null ) {
+            return response()->json([
+                'message' => 'Tournament not found',
+                'status' => false
+            ]);
+        }
+        $request->validate([
+            'status' => 'required|boolean',
+        ]);
+        $tournament->update([
+            'status' => $request->status
+        ]);
+        return response()->json([
+            'message' => $tournament->t_name . ' status updated successfully',
             'status' => true
         ]);
     }

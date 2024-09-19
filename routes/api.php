@@ -35,7 +35,6 @@ Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:
 Route::get('/show/contacts/{id}', [ContactController::class, 'show'])->middleware( 'auth:sanctum' );
 Route::post('/store/contacts', [ContactController::class, 'store']);
 Route::delete('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware( 'auth:sanctum' );
-// Route::post('/delete/contacts', [AuthController::class, 'destroy']);
 
 /************************************************************** Tournaments  *************************************************************/
 Route::get('/tournaments', [TournamentController::class, 'index']);
@@ -43,3 +42,5 @@ Route::post('/store/tournaments', [TournamentController::class, 'store'])->middl
 Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware( 'auth:sanctum' );
 Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware( 'auth:sanctum' );
 Route::delete('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware( 'auth:sanctum' );
+Route::post('/update-status/tournament/{id}', [TournamentController::class, 'updateStatus'])->middleware( 'auth:sanctum' );
+
