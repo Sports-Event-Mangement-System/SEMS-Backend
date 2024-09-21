@@ -14,24 +14,21 @@ class Cors
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {
-        $response = $next($request);
+    {  header("Access-Control-Allow-Origin: *");
 
-        // Check if the request method is OPTIONS for preflight
-        if ($request->getMethod() === "OPTIONS") {
-            return response()->json('OK', 200)
-                ->header('Access-Control-Allow-Origin', '*')
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
-                ->header('Access-Control-Allow-Credentials', 'true');
+        $headers = [
+            'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS, PUT, DELETE',
+            'Access-Control-Allow-Headers' => 'Content-Type, X-Auth-Token, Origin, Authorization'
+        ];
+        if ($request->getMethod() == "OPTIONS") {
+            return response('OK')
+                ->withHeaders($headers);
         }
 
-        // Add CORS headers to the actual response
-        return $response
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
-            ->header('Access-Control-Allow-Credentials', 'true');
+        $response = $next($request);
+        foreach ($headers as $key => $value)
+            $response->header($key, $value);
+        return $response;
     }
 
 }
