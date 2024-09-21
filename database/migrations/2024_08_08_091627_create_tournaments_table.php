@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('t_name');
             $table->string('t_description');
-            $table->string('t_logo')->nullable();
+            $table->string('t_images')->nullable();
             $table->string('prize_pool')->nullable();
             $table->date('ts_date')->nullable();
             $table->date('te_date')->nullable();

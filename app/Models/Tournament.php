@@ -12,6 +12,6 @@ class Tournament extends Model
 
     protected $guarded = ['id'];
     protected $casts = [
-        't_logo' => 'array',
+        't_images' => 'array',
     ];
 }
