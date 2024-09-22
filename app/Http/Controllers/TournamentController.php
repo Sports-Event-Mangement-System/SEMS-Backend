@@ -187,7 +187,7 @@ class TournamentController extends Controller
      *
      * @param int $id
      * @return JsonResponse
-     */~
+     */
     public function show(int $id): JsonResponse
     {
         $tournament = Tournament::find($id);
