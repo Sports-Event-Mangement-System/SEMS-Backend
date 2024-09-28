@@ -33,7 +33,6 @@ class TournamentController extends Controller
      */
     public function store(StoreTournamentRequest $request): JsonResponse
     {
-        $values = $request->all();
         // Validate the request
         $validatedData = $request->validated();
         // Handle file uploads
@@ -60,7 +59,11 @@ class TournamentController extends Controller
             'email' => $validatedData['email'],
             'address' => $validatedData['address'],
             'status' => $validatedData['status'],
-            'team_number' => $validatedData['team_number'],
+            'tournament_type' => $validatedData['tournament_type'],
+            'max_teams' => $validatedData['max_teams'],
+            'min_teams' => $validatedData['min_teams'],
+            'max_players_per_team' => $validatedData['max_players_per_team'],
+            'min_players_per_team' => $validatedData['min_players_per_team'],
             'featured' => $validatedData['featured'],
         ]);
 
@@ -137,7 +140,11 @@ class TournamentController extends Controller
             'email' => $validatedData['email'],
             'address' => $validatedData['address'],
             'status' => $validatedData['status'],
-            'team_number' => $validatedData['team_number'],
+            'tournament_type' => $validatedData['tournament_type'],
+            'max_teams' => $validatedData['max_teams'],
+            'min_teams' => $validatedData['min_teams'],
+            'max_players_per_team' => $validatedData['max_players_per_team'],
+            'min_players_per_team' => $validatedData['min_players_per_team'],
             'featured' => $validatedData['featured'],
         ]);
 
@@ -197,6 +204,25 @@ class TournamentController extends Controller
 
         return response()->json([
             'tournament' => $tournament,
+            'status' => true
+        ]);
+    }
+    /**
+     * Display the specified active tournaments.
+     *
+     * @return JsonResponse
+     */
+    public function activeTournaments(): JsonResponse
+    {
+        $tournaments = Tournament::where('status', 1)->get();
+
+        // Generate image URLs using the helper method
+        foreach($tournaments as $tournament){
+            $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
+        }
+
+        return response()->json([
+            'tournament' => $tournaments,
             'status' => true
         ]);
     }
