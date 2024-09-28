@@ -25,8 +25,12 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('address');
             $table->boolean('status');
-            $table->string('team_number');
             $table->boolean('featured');
+            $table->enum('tournament_type',['round-robin','single-elimination'])->default('single-elimination');
+            $table->string('max_teams')->nullable();
+            $table->string('min_teams')->nullable();
+            $table->string('max_players_per_team')->nullable();
+            $table->string('min_players_per_team')->nullable();
             $table->timestamps();
         });
     }
