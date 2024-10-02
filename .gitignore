@@ -18,3 +18,4 @@ yarn-error.log
 /.vscode
 /public/uploads/tournaments/*
 /public/uploads/profiles/*
+/public/uploads/teams/*

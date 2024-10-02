@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('team_id')->constrained('teams')->OnDelete('cascade');
             $table->string('player_name');
-            $table->boolean('is_captain')->default(false);
-            $table->string('email')->nullable();
+            $table->boolean('is_captain')->default(0);
+            $table->string('player_email')->nullable();
 
             $table->timestamps();
         });
