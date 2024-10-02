@@ -222,7 +222,7 @@ class TournamentController extends Controller
         }
 
         return response()->json([
-            'tournament' => $tournaments,
+            'tournaments' => $tournaments,
             'status' => true
         ]);
     }
