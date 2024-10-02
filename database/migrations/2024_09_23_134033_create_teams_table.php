@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('email')->nullable();
             $table->string('address');
-            $table->boolean('status')->default(1);
+            $table->boolean('status')->default(0);
             $table->integer('player_number');
             $table->timestamps();
         });

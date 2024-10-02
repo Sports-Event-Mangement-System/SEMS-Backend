@@ -30,7 +30,26 @@ class StoreTeamRequest extends FormRequest
             'email' => 'required',
             'address' => 'required',
             'player_number' => 'required|integer',
-            'status' => 'required|boolean',
+            'status' => 'nullable|boolean',
+            // 'players' => 'required|array|min:'. $this->tournament->min_players_per_team, // Check against tournament minimum
+            'players.*.player_name' => 'required|string',
+            'players.*.player_email' => 'required|email',
+            // 'players.*.is_captain' => 'nullable|boolean',
         ];
     }
+    public function messages(): array
+    {
+        $messages = [];
+
+        foreach ($this->input('players', []) as $index => $player) {
+            $playerNumber = $index + 1; // Adjust for 1-based indexing
+
+            $messages["players.$index.player_name.required"] = "Player $playerNumber name is required.";
+            $messages["players.$index.player_email.required"] = "Player $playerNumber email is required.";
+            $messages["players.$index.player_email.email"] = "Player $playerNumber email must be a valid email address.";
+        }
+
+        return $messages;
+    }
+
 }

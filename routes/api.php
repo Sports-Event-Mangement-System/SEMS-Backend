@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -48,3 +49,6 @@ Route::get('show/tournament/{id}', [TournamentController::class, 'show']);
 //To fetch active status tournaments.
 Route::get('active/tournaments', [TournamentController::class, 'activeTournaments']);
 
+/************************************************************** Teams  *************************************************************/
+Route::get('/teams', [TeamController::class, 'index'])->middleware( 'auth:sanctum' );
+Route::post('/store/team', [TeamController::class, 'store'])->middleware( 'auth:sanctum' );
