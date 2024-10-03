@@ -15,7 +15,7 @@ class TeamController extends Controller
     {
         $teams = Team::all();
         foreach ($teams as $team) {
-            $team->logo_urls = ImageHelper::generateImageUrls($team->team_logo);
+            $team->logo_urls = url('uploads/teams/'. $team->team_logo);
         }
 
         return response()->json([
