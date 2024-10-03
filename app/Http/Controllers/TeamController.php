@@ -15,12 +15,12 @@ class TeamController extends Controller
     {
         $teams = Team::all();
         foreach ($teams as $team) {
-            $team->logo_urls = url('uploads/teams/'. $team->team_logo);
+            $team->logo_urls = url('uploads/teams/'.$team->team_logo);
         }
 
         return response()->json([
             'data' => $teams,
-            'status' => true
+            'status' => true,
         ]);
     }
 
@@ -32,7 +32,7 @@ class TeamController extends Controller
         // Handle file uploads
         if ($request->hasFile('team_logo')) {
             $file = $request->file('team_logo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/teams'), $filename);
         }
 
@@ -50,21 +50,21 @@ class TeamController extends Controller
 
         $team->save();
         $players = $request->players;
-        foreach( $players as $key => $player ){
+        foreach ($players as $key => $player) {
             $player_save = Player::create([
                 'team_id' => $team->id,
                 'player_name' => $player['player_name'],
                 'player_email' => $player['player_email'],
-                'is_captain' => $key==0 ? 1 : 0,
+                'is_captain' => $key === 0 ? 1 : 0,
             ]);
         }
 
         $player_save->save();
 
         return response()->json([
-            'message' => $team->team_name . 'Team Register successfully',
+            'message' => $team->team_name.'Team Register successfully',
             'team' => $team,
-            'status' => true
+            'status' => true,
         ]);
     }
 
