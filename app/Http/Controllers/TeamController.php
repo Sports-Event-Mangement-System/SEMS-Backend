@@ -23,6 +23,11 @@ class TeamController extends Controller
             'status' => true,
         ]);
     }
+    public function mail_template()
+    {
+
+        return view('Emails.Teams.team_status_active');
+    }
 
     public function store(StoreTeamRequest $request): JsonResponse
     {
