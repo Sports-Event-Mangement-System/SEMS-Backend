@@ -24,31 +24,33 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware( 'auth:sanctum' );
-Route::get('/user/{id}', [AuthController::class, 'user'])->middleware( 'auth:sanctum' );
-Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware( 'auth:sanctum' );
-Route::post('/update/profile_image/{id}', [AuthController::class, 'updateProfileImage'])->middleware( 'auth:sanctum' );
-Route::delete('/delete/profile_image/{id}', [AuthController::class, 'deleteProfileImage'])->middleware( 'auth:sanctum' );
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/user/{id}', [AuthController::class, 'user'])->middleware('auth:sanctum');
+Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middleware('auth:sanctum');
+Route::post('/update/profile_image/{id}', [AuthController::class, 'updateProfileImage'])->middleware('auth:sanctum');
+Route::delete('/delete/profile_image/{id}', [AuthController::class, 'deleteProfileImage'])->middleware('auth:sanctum');
 // Route::post('/update/password/{id}', [AuthController::class, 'updatePassword'])->middleware( 'auth:sanctum' );
 
 /************************************************************** Contacts Form *************************************************************/
-Route::get('/contacts', [ContactController::class, 'index'])->middleware( 'auth:sanctum' );
-Route::get('/show/contacts/{id}', [ContactController::class, 'show'])->middleware( 'auth:sanctum' );
+Route::get('/contacts', [ContactController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/show/contacts/{id}', [ContactController::class, 'show'])->middleware('auth:sanctum');
 Route::post('/store/contacts', [ContactController::class, 'store']);
-Route::delete('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware( 'auth:sanctum' );
+Route::delete('/delete/contacts/{id}', [ContactController::class, 'destroy'])->middleware('auth:sanctum');
 
 /************************************************************** Tournaments  *************************************************************/
-Route::get('/tournaments', [TournamentController::class, 'index'])->middleware( 'auth:sanctum' );
-Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware( 'auth:sanctum' );
-Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware( 'auth:sanctum' );
-Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware( 'auth:sanctum' );
-Route::delete('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware( 'auth:sanctum' );
-Route::post('/update-status/tournament/{id}', [TournamentController::class, 'updateStatus'])->middleware( 'auth:sanctum' );
+Route::get('/tournaments', [TournamentController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/store/tournaments', [TournamentController::class, 'store'])->middleware('auth:sanctum');
+Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware('auth:sanctum');
+Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/update-status/tournament/{id}',
+    [TournamentController::class, 'updateStatus'])->middleware('auth:sanctum');
 //To fetch specific tournaments data for users
 Route::get('show/tournament/{id}', [TournamentController::class, 'show']);
 //To fetch active status tournaments.
 Route::get('active/tournaments', [TournamentController::class, 'activeTournaments']);
 
 /************************************************************** Teams  *************************************************************/
-Route::get('/teams', [TeamController::class, 'index'])->middleware( 'auth:sanctum' );
-Route::post('/store/team', [TeamController::class, 'store'])->middleware( 'auth:sanctum' );
+Route::get('/teams', [TeamController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/store/team', [TeamController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/update-status/team/{id}', [TeamController::class, 'updateStatus'])->middleware('auth:sanctum');

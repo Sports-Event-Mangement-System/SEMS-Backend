@@ -14,4 +14,9 @@ class Tournament extends Model
     protected $casts = [
         't_images' => 'array',
     ];
+
+    public function teams()
+    {
+        return $this->hasMany(Team::class);
+    }
 }

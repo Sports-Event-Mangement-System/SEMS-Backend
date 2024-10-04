@@ -11,4 +11,9 @@ class Player extends Model
 
     protected $table = "players";
     protected $guarded = ['id'];
+
+    public function Team()
+    {
+        return $this->belongsTo(Team::class, 'team_id');
+    }
 }

@@ -43,6 +43,7 @@ class UpdateTournamentRequest extends FormRequest
             'featured' => 'required|boolean',
         ];
     }
+
     public function messages(): array
     {
         return [
@@ -64,7 +65,7 @@ class UpdateTournamentRequest extends FormRequest
             'email.email' => 'The email must be a valid email address.',
             'address.required' => 'The address is required.',
             'status.required' => 'The status is required.',
-            'tournament_type.required' => 'The Tournmaent Type Field is required',
+            'tournament_type.required' => 'The Tournament Type Field is required',
             'max_teams.required' => 'The Max team field is required.',
             'max_teams.integer' => 'The Max team must be an integer.',
             'max_teams.gt' => 'The Max team must be greater than the Minimum team.',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\EmailHelper;
 use App\Helper\ImageHelper;
 use App\Http\Requests\StoreTeamRequest;
 use App\Models\Player;
@@ -23,16 +24,9 @@ class TeamController extends Controller
             'status' => true,
         ]);
     }
-    public function mail_template()
-    {
-
-        return view('Emails.Teams.team_status_active');
-    }
 
     public function store(StoreTeamRequest $request): JsonResponse
     {
-
-        $all_data = $request->all();
         $validatedData = $request->validated();
         // Handle file uploads
         if ($request->hasFile('team_logo')) {
@@ -73,5 +67,22 @@ class TeamController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, $id): JsonResponse
+    {
+        $team = Team::find($id);
+        $team->status = $request->status;
+        $team->save();
+
+        if ($team->status == 1) {
+
+            EmailHelper::TeamActiveMail($team);
+
+        }
+
+        return response()->json([
+            'message' => $team->team_name.'status updated successfully',
+            'status' => true,
+        ]);
+    }
 
 }

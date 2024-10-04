@@ -37,13 +37,13 @@ class StoreTeamRequest extends FormRequest
             // 'players.*.is_captain' => 'nullable|boolean',
         ];
     }
+
     public function messages(): array
     {
         $messages = [];
 
         foreach ($this->input('players', []) as $index => $player) {
-            $playerNumber = $index + 1; // Adjust for 1-based indexing
-
+            $playerNumber = $index + 1;
             $messages["players.$index.player_name.required"] = "Player $playerNumber name is required.";
             $messages["players.$index.player_email.required"] = "Player $playerNumber email is required.";
             $messages["players.$index.player_email.email"] = "Player $playerNumber email must be a valid email address.";

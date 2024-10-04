@@ -24,7 +24,7 @@ class AuthController extends Controller
                 RulesPassword::min(8)->letters()
                     ->mixedCase()
                     ->numbers()
-                    ->symbols()
+                    ->symbols(),
             ],
             'password_confirmation' => 'required|same:password',
         ]);
@@ -34,12 +34,12 @@ class AuthController extends Controller
             'email' => $registerUserData['email'],
             'phone_number' => $registerUserData['phone_number'],
             'password' => Hash::make($registerUserData['password']),
-            'role' => 'user'
+            'role' => 'user',
         ]);
         return response()->json([
             'status' => true,
             'role' => $user->role,
-            'message' => 'User ' . $user->name . ' Created Succesfully',
+            'message' => 'User '.$user->name.' Created Succesfully',
         ]);
     }
 
@@ -47,15 +47,15 @@ class AuthController extends Controller
     {
         $loginUserData = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|min:8'
+            'password' => 'required|min:8',
         ]);
         $user = User::where('email', $loginUserData['email'])->first();
         if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
             return response()->json([
-                'message' => 'Invalid Credentials'
+                'message' => 'Invalid Credentials',
             ], 401);
         }
-        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+        $token = $user->createToken($user->name.'-AuthToken')->plainTextToken;
         $user['remember_me'] = $request->remember_me;
         return response()->json([
             'status' => true,
@@ -72,7 +72,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'logged out successfully'
+            'message' => 'logged out successfully',
         ]);
     }
 
@@ -82,7 +82,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'User Data',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -91,14 +91,14 @@ class AuthController extends Controller
         $user = User::find($request->id);
         $updateUserData = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:users,username,' . $user->id,
-            'email' => 'required|string|email|unique:users,email,' . $user->id,
+            'username' => 'required|string|unique:users,username,'.$user->id,
+            'email' => 'required|string|email|unique:users,email,'.$user->id,
             'phone_number' => ['required', 'min:10', 'max:11'],
         ]);
         $user->updateOrFail($updateUserData);
         return response()->json([
             'status' => true,
-            'message' => 'User ' . $user->username . ' Updated Succesfully',
+            'message' => 'User '.$user->username.' Updated Succesfully',
             'user_details' => $user,
         ]);
     }
@@ -112,28 +112,29 @@ class AuthController extends Controller
 
         // Check if user already has a profile image
         if ($user->profile_image) {
-            $existingImagePath = public_path('uploads/profiles/' . $user->profile_image);
+            $existingImagePath = public_path('uploads/profiles/'.$user->profile_image);
             if (file_exists($existingImagePath)) {
                 unlink($existingImagePath);
             }
         }
 
         $profile_image = $request->file('profile_image');
-        $profile_image_name = time() . '.' . $profile_image->extension();
+        $profile_image_name = time().'.'.$profile_image->extension();
         $profile_image->move(public_path('uploads/profiles'), $profile_image_name);
         $user->profile_image = $profile_image_name;
         $user->save();
 
         return response()->json([
             'status' => true,
-            'message' => $user->username . ' Profile Image Updated Successfully',
-            'profile_img_url' => url('uploads/profiles/' . $profile_image_name),
+            'message' => $user->username.' Profile Image Updated Successfully',
+            'profile_img_url' => url('uploads/profiles/'.$profile_image_name),
         ]);
     }
+
     public function deleteProfileImage($id): JsonResponse
     {
         $user = User::find($id);
-        $existingImagePath = public_path('uploads/profiles/' . $user->profile_image);
+        $existingImagePath = public_path('uploads/profiles/'.$user->profile_image);
         if (file_exists($existingImagePath)) {
             unlink($existingImagePath);
         }
@@ -142,7 +143,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => $user->username . ' Profile Image Deleted Successfully',
+            'message' => $user->username.' Profile Image Deleted Successfully',
         ]);
     }
 }
