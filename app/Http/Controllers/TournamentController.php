@@ -21,14 +21,14 @@ class TournamentController extends Controller
 
         return response()->json([
             'tournaments' => $tournaments,
-            'status' => true
+            'status' => true,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreTournamentRequest $request
+     * @param  StoreTournamentRequest  $request
      * @return JsonResponse
      */
     public function store(StoreTournamentRequest $request): JsonResponse
@@ -39,7 +39,7 @@ class TournamentController extends Controller
         $filenames = [];
         if ($request->hasFile('t_images')) {
             foreach ($request->file('t_images') as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/tournaments'), $filename);
                 $filenames[] = $filename;
             }
@@ -70,7 +70,7 @@ class TournamentController extends Controller
         return response()->json([
             'message' => 'Tournament created successfully',
             'tournament' => $tournament,
-            'status' => true
+            'status' => true,
         ]);
     }
 
@@ -83,7 +83,7 @@ class TournamentController extends Controller
 
         return response()->json([
             'tournament' => $tournament,
-            'status' => true
+            'status' => true,
         ]);
     }
 
@@ -92,7 +92,8 @@ class TournamentController extends Controller
         $validatedData = $request->validated();
         $tournament = Tournament::find($id);
 
-        $existingImages = is_string($tournament->t_images) ? json_decode($tournament->t_images, true) : $tournament->t_images;
+        $existingImages = is_string($tournament->t_images) ? json_decode($tournament->t_images,
+            true) : $tournament->t_images;
 
         $existingImages = $existingImages ?? [];
 
@@ -115,7 +116,7 @@ class TournamentController extends Controller
             $newImages = $request->file('t_images');
 
             foreach ($newImages as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/tournaments'), $filename);
                 $filenames[] = $filename;
             }
@@ -151,7 +152,7 @@ class TournamentController extends Controller
         return response()->json([
             'message' => 'Tournament updated successfully',
             'tournament' => $tournament,
-            'status' => true
+            'status' => true,
         ]);
     }
 
@@ -162,7 +163,7 @@ class TournamentController extends Controller
         $tournament->delete();
         return response()->json([
             'message' => 'Tournament deleted successfully',
-            'status' => true
+            'status' => true,
         ]);
     }
 
@@ -173,18 +174,18 @@ class TournamentController extends Controller
         if ($tournament === null) {
             return response()->json([
                 'message' => 'Tournament not found',
-                'status' => false
+                'status' => false,
             ]);
         }
         $request->validate([
             'status' => 'required|boolean',
         ]);
         $tournament->update([
-            'status' => $request->status
+            'status' => $request->status,
         ]);
         return response()->json([
-            'message' => $tournament->t_name . ' status updated successfully',
-            'status' => true
+            'message' => $tournament->t_name.' status updated successfully',
+            'status' => true,
         ]);
     }
 
@@ -192,7 +193,7 @@ class TournamentController extends Controller
      * Display the specified resource.
      * This function is used for to fetch specific tournaments data for users
      *
-     * @param int $id
+     * @param  int  $id
      * @return JsonResponse
      */
     public function show(int $id): JsonResponse
@@ -204,9 +205,10 @@ class TournamentController extends Controller
 
         return response()->json([
             'tournament' => $tournament,
-            'status' => true
+            'status' => true,
         ]);
     }
+
     /**
      * Display the specified active tournaments.
      *
@@ -217,13 +219,13 @@ class TournamentController extends Controller
         $tournaments = Tournament::where('status', 1)->get();
 
         // Generate image URLs using the helper method
-        foreach($tournaments as $tournament){
+        foreach ($tournaments as $tournament) {
             $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
         }
 
         return response()->json([
             'tournaments' => $tournaments,
-            'status' => true
+            'status' => true,
         ]);
     }
 

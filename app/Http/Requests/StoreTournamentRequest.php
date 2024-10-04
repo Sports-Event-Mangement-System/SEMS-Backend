@@ -43,6 +43,7 @@ class StoreTournamentRequest extends FormRequest
             'featured' => 'required|boolean',
         ];
     }
+
     /**
      * Get the validation error messages that apply to the request.
      *
