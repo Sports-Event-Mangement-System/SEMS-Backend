@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\ImageHelper;
 use App\Http\Requests\StoreTournamentRequest;
 use App\Http\Requests\UpdateTournamentRequest;
+use App\Models\Team;
 use App\Models\Tournament;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,6 @@ class TournamentController extends Controller
     public function index(): JsonResponse
     {
         $tournaments = Tournament::all();
-        // Loop through each tournament to generate image URLs
         foreach ($tournaments as $tournament) {
             $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
         }
@@ -79,7 +79,7 @@ class TournamentController extends Controller
         $tournament = Tournament::find($id);
 
         // Generate image URLs using the helper method
-        $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
+        $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images ?? '');
 
         return response()->json([
             'tournament' => $tournament,
@@ -92,7 +92,7 @@ class TournamentController extends Controller
         $validatedData = $request->validated();
         $tournament = Tournament::find($id);
 
-        $existingImages = is_string($tournament->t_images) ? json_decode($tournament->t_images,
+        $existingImages = is_string($tournament->t_images ?? '') ? json_decode($tournament->t_images,
             true) : $tournament->t_images;
 
         $existingImages = $existingImages ?? [];
@@ -200,8 +200,26 @@ class TournamentController extends Controller
     {
         $tournament = Tournament::find($id);
 
+        if (!$tournament) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Tournament not found.',
+            ], 404);
+        }
+
+        $teams = Team::where('tournament_id', $id)->get();
+        if ($teams->count() > 0) {
+            foreach ($teams as $team) {
+                $team->logo_url = url('uploads/teams/'.$team->team_logo);
+            }
+            $tournament->teams = $teams->where('status', 1);
+            $tournament->team_register = $teams->count();
+            $team_confirmed = $teams->where('status', 1)->count();
+            $tournament->team_confirmed = $team_confirmed;
+            $tournament->slot_left = $tournament->max_teams - $team_confirmed;
+        }
         // Generate image URLs using the helper method
-        $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
+        $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images ?? '');
 
         return response()->json([
             'tournament' => $tournament,
@@ -228,5 +246,4 @@ class TournamentController extends Controller
             'status' => true,
         ]);
     }
-
 }

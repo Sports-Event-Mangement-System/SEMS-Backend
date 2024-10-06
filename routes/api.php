@@ -43,8 +43,7 @@ Route::post('/store/tournaments', [TournamentController::class, 'store'])->middl
 Route::get('/edit/tournament/{id}', [TournamentController::class, 'edit'])->middleware('auth:sanctum');
 Route::post('/update/tournament/{id}', [TournamentController::class, 'update'])->middleware('auth:sanctum');
 Route::delete('/delete/tournament/{id}', [TournamentController::class, 'destroy'])->middleware('auth:sanctum');
-Route::post('/update-status/tournament/{id}',
-    [TournamentController::class, 'updateStatus'])->middleware('auth:sanctum');
+Route::post('/update-status/tournament/{id}',[TournamentController::class, 'updateStatus'])->middleware('auth:sanctum');
 //To fetch specific tournaments data for users
 Route::get('show/tournament/{id}', [TournamentController::class, 'show']);
 //To fetch active status tournaments.
