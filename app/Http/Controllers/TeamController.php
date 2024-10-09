@@ -85,4 +85,16 @@ class TeamController extends Controller
         ]);
     }
 
+    public function getTeam($id): JsonResponse
+    {
+        $team = Team::findOrFail($id);
+        $team->logo_urls = url('uploads/teams/'.$team->team_logo);
+        $team['players'] = $team->players;
+
+        return response()->json([
+            'team' => $team,
+            'status' => true,
+        ]);
+    }
+
 }

@@ -53,3 +53,4 @@ Route::get('active/tournaments', [TournamentController::class, 'activeTournament
 Route::get('/teams', [TeamController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/store/team', [TeamController::class, 'store'])->middleware('auth:sanctum');
 Route::post('/update-status/team/{id}', [TeamController::class, 'updateStatus'])->middleware('auth:sanctum');
+Route::get('/show/team/{id}', [TeamController::class, 'getTeam']);
