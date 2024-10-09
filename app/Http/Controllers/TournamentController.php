@@ -14,11 +14,10 @@ class TournamentController extends Controller
 {
     public function index(): JsonResponse
     {
-        $tournaments = Tournament::all();
+        $tournaments = Tournament::with('teams')->get();
         foreach ($tournaments as $tournament) {
             $tournament->image_urls = ImageHelper::generateImageUrls($tournament->t_images);
         }
-
         return response()->json([
             'tournaments' => $tournaments,
             'status' => true,
