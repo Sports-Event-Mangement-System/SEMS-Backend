@@ -87,7 +87,7 @@ class TeamController extends Controller
 
     public function getTeam($id): JsonResponse
     {
-        $team = Team::findOrFail($id);
+        $team = Team::with('tournament')->findOrFail($id);
         $team->logo_urls = url('uploads/teams/'.$team->team_logo);
         $team['players'] = $team->players;
 
