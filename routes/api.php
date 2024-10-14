@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use Illuminate\Http\Request;
@@ -56,3 +58,9 @@ Route::post('/update/team/{id}', [TeamController::class, 'update'])->middleware(
 Route::post('/update-status/team/{id}', [TeamController::class, 'updateStatus'])->middleware('auth:sanctum');
 Route::get('/show/team/{id}', [TeamController::class, 'getTeam']);
 Route::delete('/delete/team/{id}', [TeamController::class, 'destroy'])->middleware('auth:sanctum');
+
+/************************************************************** Players  *************************************************************/
+Route::get('/players', [PlayerController::class, 'index'])->middleware('auth:sanctum');
+
+/************************************************************** Schedules  *************************************************************/
+Route::get('/tiesheet/tournament/{id}', [ScheduleController::class, 'tiesheetGenerator'])->middleware('auth:sanctum');

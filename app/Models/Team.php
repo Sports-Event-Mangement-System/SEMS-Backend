@@ -21,4 +21,11 @@ class Team extends Model
     {
         return $this->belongsTo(Tournament::class);
     }
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+    public function matches(){
+        return $this->hasMany(Matches::class);
+    }
 }
