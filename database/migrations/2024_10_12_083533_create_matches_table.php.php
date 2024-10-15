@@ -13,19 +13,20 @@ return new class extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
+            $table->integer('match_id');
             $table->foreignId('tournament_id')->constrained('tournaments')->OnDelete('cascade');
-            $table->foreignId('team_id_1')->constrained('teams')->OnDelete('cascade');
-            $table->foreignId('team_id_2')->constrained('teams')->OnDelete('cascade');
-            $table->string('match_name');
-            $table->string('match_date');
-            $table->string('match_time');
-            $table->string('match_venue');
-            $table->string('match_result')->nullable();
+            $table->foreignId('team_id_1')->constrained('teams')->OnDelete('cascade')->nullable();
+            $table->foreignId('team_id_2')->constrained('teams')->OnDelete('cascade')->nullable();
+            $table->string('name');
+            $table->integer('nextMatchId')->nullable();
+            $table->integer('nextLooserMatchId')->nullable();
+            $table->string('startTime')->nullable();
+            $table->string('tournamentRoundText')->nullable();
+            $table->string('participants')->nullable();
             $table->string('match_winner')->nullable();
             $table->string('match_looser')->nullable();
-            $table->string('match_status')->default('pending');
+            $table->string('state')->enum('NO_SHOW','WALK_OVER','NO_PARTY','DONE','SCORE_DONE');
             $table->string('match_report')->nullable();
-
             $table->timestamps();
         });
     }
