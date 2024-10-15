@@ -11,12 +11,12 @@ class ScheduleController extends Controller
 {
     protected int $tournament_id;
 
-    public function tiesheetGenerator(Request $request, $id): JsonResponse
+    public function tiesheetGenerator($id): JsonResponse
     {
         $tournament = Tournament::with('teams')->find($id);
         $this->tournament_id = $id;
         // Check if the tournament exists and has teams
-        if (!$tournament || $tournament->teams->isEmpty()) {
+        if (!$tournament ) {
             return response()->json([
                 'status' => false,
                 'message' => 'Tournament not found or no teams available.',
@@ -32,7 +32,7 @@ class ScheduleController extends Controller
             if (count($teams) < 2) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'At least 2 teams are required to generate matches. There is only 1 Team Registered in your Tournament',
+                    'message' => 'At least 2 teams are required to generate matches.',
                 ], 400);
             }
             $totalMatches = count($teams);
@@ -118,19 +118,20 @@ class ScheduleController extends Controller
 
                 // Add winner to the next round
                 $nextRoundParticipants[] = $matchParticipants[0];
-                // Handle walkover for the current round if there's an odd team
-                if ($remainingTeams % 2 === 1) {
-                    $walkoverParticipant = array_shift($participants);
-                    $walkoverParticipant['isWinner'] = true;
-                    $walkoverParticipant['status'] = 'WALK_OVER';
+            }
 
-                    // Create walkover match entry
-                    $walkoverMatch = $this->createMatchEntry($matchId++, $matchParticipants, null, $round,
-                        $registrationEndDate, $walkoverParticipant);
-                    $matches[] = $walkoverMatch;
-                    $currentRoundMatches[] = $walkoverMatch;
-                    $nextRoundParticipants[] = $walkoverParticipant; // Add walkover participant to the next round
-                }
+            // Handle walkover for the current round if there's an odd team
+            if ($remainingTeams % 2 === 1) {
+                $walkoverParticipant = array_shift($participants);
+                $walkoverParticipant['isWinner'] = true;
+                $walkoverParticipant['status'] = 'WALK_OVER';
+
+                // Create walkover match entry
+                $walkoverMatch = $this->createMatchEntry($matchId++, $matchParticipants, null, $round,
+                    $registrationEndDate, $walkoverParticipant);
+                $matches[] = $walkoverMatch;
+                $currentRoundMatches[] = $walkoverMatch;
+                $nextRoundParticipants[] = $walkoverParticipant; // Add walkover participant to the next round
             }
 
             // Assign nextMatchId for current round matches
