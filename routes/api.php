@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\MatchController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TeamController;
@@ -64,3 +65,6 @@ Route::get('/players', [PlayerController::class, 'index'])->middleware('auth:san
 
 /************************************************************** Schedules  *************************************************************/
 Route::get('/tiesheet/tournament/{id}', [ScheduleController::class, 'tiesheetGenerator'])->middleware('auth:sanctum');
+
+/************************************************************** Matches  *************************************************************/
+Route::post('/save/matches/tournament/{id}', [MatchController::class, 'saveMatches'])->middleware('auth:sanctum');
