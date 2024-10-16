@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->integer('match_id');
             $table->foreignId('tournament_id')->constrained('tournaments')->OnDelete('cascade');
-            $table->foreignId('team_id_1')->constrained('teams')->OnDelete('cascade')->nullable();
-            $table->foreignId('team_id_2')->constrained('teams')->OnDelete('cascade')->nullable();
+            $table->foreignId('team_id_1')->nullable()->constrained('teams')->OnDelete('cascade');
+            $table->foreignId('team_id_2')->nullable()->constrained('teams')->OnDelete('cascade');
             $table->string('name');
             $table->integer('nextMatchId')->nullable();
             $table->integer('nextLooserMatchId')->nullable();
