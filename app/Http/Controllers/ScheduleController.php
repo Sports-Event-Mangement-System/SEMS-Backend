@@ -16,7 +16,7 @@ class ScheduleController extends Controller
         $tournament = Tournament::with('teams')->find($id);
         $this->tournament_id = $id;
         // Check if the tournament exists and has teams
-        if (!$tournament ) {
+        if (!$tournament) {
             return response()->json([
                 'status' => false,
                 'message' => 'Tournament not found or no teams available.',
@@ -25,7 +25,7 @@ class ScheduleController extends Controller
 
         $teams = $tournament->teams;
         $formattedDate = now()->format('Y-m-d');
-        $registrationEndDate = $formattedDate >= $tournament->re_date ? true : false;
+        $registrationEndDate = $formattedDate >= $tournament->re_date;
         if (!$registrationEndDate) {
             $totalMatches = $tournament->max_teams;
         } else {
@@ -37,7 +37,7 @@ class ScheduleController extends Controller
             }
             $totalMatches = count($teams);
         }
-        $randomTeams = $request->randomTeams ? true : false;
+        $randomTeams = $request->input('randomTeams') === 'true';
         $response = $this->generateMatchesResponse($totalMatches, $teams, $randomTeams);
 
         return response()->json([
@@ -51,153 +51,113 @@ class ScheduleController extends Controller
     /**
      * Generate matches for the tournament
      *
-     * @param  int  $max_teams  It is just he team count
-     * @param  array  $teams  This contains teams data
+     * @param int $max_teams It is just the team count
+     * @param array $teams This contains teams data
+     * @param bool $randomTeams
      * @return array
      */
-    public function generateMatchesResponse($max_teams, $teams, $randomTeams = false)
+    public function generateMatchesResponse($max_teams, $teams, $randomTeams = false): array
     {
         $matches = [];
-        $matchId = 1; // Start match ID from 1
+        $matchId = 1;
         $round = 1;
 
         // Generate participants for the first round
         $participants = $this->generateParticipants($max_teams, $teams, $randomTeams);
 
-        // If only 2 teams, handle a final match directly
-        if ($max_teams === 2) {
-            $finalMatchParticipants = [
-                $participants[0],
-                $participants[1],
-            ];
+        $totalRounds = ceil(log(count($participants), 2));
 
-            $matches[] = $this->createMatchEntry($matchId++, $finalMatchParticipants, null);
-            return array_reverse($matches);
-        }
-
-        // Continue generating rounds until only one team remains
-        while (count($participants) > 1) {
-            $remainingTeams = count($participants);
+        for ($currentRound = 1; $currentRound <= $totalRounds; $currentRound++) {
+            $matchesInRound = ceil(count($participants) / 2);
             $nextRoundParticipants = [];
-            $currentRoundMatches = [];
-            $matchesToHappen = ceil($remainingTeams / 2);
-            if ($remainingTeams == 2) {
-                break;
-            }
 
+            for ($i = 0; $i < $matchesInRound; $i++) {
+                $matchParticipants = [];
 
-            // Create matches for the current round
-            for ($i = 0; $i < $matchesToHappen; $i++) {
-                if (count($participants) < 2) {
-                    break; // No more participants to match
+                // For the first round, pair teams until we can't make full pairs
+                if ($currentRound == 1 && count($participants) >= 2) {
+                    $matchParticipants[] = array_shift($participants);
+                    $matchParticipants[] = array_shift($participants);
+                } else {
+                    // Add up to two participants to this match
+                    for ($j = 0; $j < 2; $j++) {
+                        if (!empty($participants)) {
+                            $matchParticipants[] = array_shift($participants);
+                        }
+                    }
                 }
 
-                $matchParticipants = [
-                    array_shift($participants), // First participant
-                    array_shift($participants),  // Second participant
-                ];
+                $nextMatchId = ($currentRound < $totalRounds) ? $matchId + $matchesInRound : null;
+                $state = (count($matchParticipants) == 1) ? "WALK_OVER" : "SCHEDULED";
 
-                // Create match entry
-                $currentMatch = $this->createMatchEntry($matchId++, $matchParticipants, null);
-                $matches[] = $currentMatch;
-                $currentRoundMatches[] = $currentMatch; // Store current round match for next match reference
+                $match = $this->createMatchEntry($matchId++, $matchParticipants, $nextMatchId, (string)$currentRound, $state);
 
-                // Add a placeholder for the winner to the next round
-                $nextRoundParticipants[] = $matchParticipants[0];
-            }
-
-            // Handle walkover for the current round if there's an odd team
-            if ($remainingTeams % 2 === 1) {
-                $walkoverParticipant = array_shift($participants);
-                $walkoverParticipant['isWinner'] = true;
-                $walkoverParticipant['status'] = 'WALK_OVER';
-
-                // Create walkover match entry
-                $walkoverMatch = $this->createMatchEntry($matchId++, [$walkoverParticipant], null, $walkoverParticipant);
-                $matches[] = $walkoverMatch;
-                $currentRoundMatches[] = $walkoverMatch;
-                $walkoverParticipant['isWinner'] = false;
-                $walkoverParticipant['status'] = null;
-                $nextRoundParticipants[] = $walkoverParticipant; // Add walkover participant to the next round
-            }
-
-            // Assign nextMatchId for current round matches
-            if ($round === 1) {
-                $currentRoundMatchCount = count($currentRoundMatches);
-                // Assign nextMatchId to paired matches
-                for ($i = 0; $i < count($currentRoundMatches); $i++) {
-                    $nextMatchId = floor($currentRoundMatchCount + ($i / 2) + 1);
-                    $matches[$i]['nextMatchId'] = $nextMatchId; // Match i
+                if ($state == "WALK_OVER") {
+                    $match['participants'][0]['isWinner'] = true;
+                    $match['participants'][0]['status'] = "WALK_OVER";
+                    $match['participants'][0]['resultText'] = "Won";
+                    $nextRoundParticipants[] = $match['participants'][0];
+                } else {
+                    $nextRoundParticipants[] = null;
                 }
-            } else {
-                // For rounds greater than 1, implement similar logic or adjust as needed
-                foreach ($currentRoundMatches as $i => $currentMatch) {
-                    $matches[$currentMatch['id'] - 1]['nextMatchId'] = $matchId;
-                }
+
+                $matches[] = $match;
             }
 
-            // Prepare for the next round with winners
             $participants = $nextRoundParticipants;
+        }
 
-            // Randomly decide whether to shuffle participants for the next round
-            if ($randomTeams) {
-                shuffle($participants);
+        // Correct nextMatchId for matches
+        $roundMatches = [];
+        foreach ($matches as $match) {
+            $roundMatches[$match['tournamentRoundText']][] = $match;
+        }
+
+        for ($i = 1; $i < $totalRounds; $i++) {
+            $currentRound = $roundMatches[$i];
+            $nextRound = $roundMatches[$i + 1];
+
+            foreach ($currentRound as $index => $match) {
+                $nextMatchIndex = floor($index / 2);
+                $matches[$match['id'] - 1]['nextMatchId'] = $nextRound[$nextMatchIndex]['id'];
             }
-
-            $round++;
         }
 
-        // Handle final match if two teams remain
-        if (count($participants) === 2) {
-            $finalMatchParticipants = [
-                $participants[0],
-                $participants[1],
-            ];
-
-            $matches[] = $this->createMatchEntry($matchId++, $finalMatchParticipants, null);
-        }
+        $matches[count($matches) - 1]['nextMatchId'] = null;
 
         return array_reverse($matches);
     }
 
-    /**
-     * Create a match entry or walkover entry
-     *
-     * @param  int  $matchId
-     * @param  array  $participants
-     * @param  int|null  $nextMatchId
-     * @param  string  $round
-     * @param  array  $walkoverParticipant  data for walkover participants.
-     * @return array
-     */
-    private function createMatchEntry(
-        $matchId,
-        $participants,
-        $nextMatchId,
-        $walkoverParticipant = null
-    ): array {
-        // Set common match data
-        $isWalkover = $walkoverParticipant !== null;
-        $match_data = [
-            'id' => $matchId,
-            'name' => ($isWalkover ? 'Walkover Match ' : 'Match ').$matchId,
-            'nextMatchId' => $nextMatchId,
-            'nextLooserMatchId' => null,
-            'tournamentRoundText' => (string) ceil($matchId / 2),
-            'startTime' => now()->toDateString(),
-            'state' => $isWalkover ? 'WALK_OVER' : 'DONE',
-            'participants' => $isWalkover ? [$walkoverParticipant] : $participants,
-        ];
+    private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "SCHEDULED"): array
+    {
+        $isWalkover = ($state == "WALK_OVER");
 
-        return $match_data;
+        return [
+            'id' => $matchId,
+            'nextMatchId' => $nextMatchId,
+            'name' => ($isWalkover ? 'Walkover Match ' : 'Match ') . $matchId,
+            'tournamentRoundText' => $round,
+            'startTime' => now()->toDateString(),
+            'state' => $state,
+            'participants' => array_map(function ($participant) use ($state) {
+                return [
+                    'id' => $participant['id'] ?? '',
+                    'resultText' => ($state == "WALK_OVER") ? "Won" : null,
+                    'isWinner' => ($state == "WALK_OVER"),
+                    'status' => ($state == "WALK_OVER") ? "WALK_OVER" : null,
+                    'name' => $participant['name'] ?? '',
+                    'picture' => "teamlogos/client_team_default_logo",
+                ];
+            }, $participants),
+        ];
     }
 
     /**
      * Generate participants for the tournament
      *
-     * @param  int  $max_teams
-     * @param  array  $teams
-     * @param  bool  $randomTeams
+     * @param int $max_teams
+     * @param array $teams
+     * @param bool $randomTeams
      * @return array
      */
     public function generateParticipants($max_teams, $teams, $randomTeams = false): array
@@ -217,7 +177,7 @@ class ScheduleController extends Controller
             } else {
                 $participants[] = [
                     'id' => $i + 1, // Unique ID for each participant
-                    'name' => "Team ".($i + 1), // Placeholder name
+                    'name' => "Team " . ($i + 1), // Placeholder name
                     'status' => null,
                     'isWinner' => false,
                 ];

@@ -69,3 +69,4 @@ Route::get('/tiesheet/tournament/{id}', [ScheduleController::class, 'tiesheetGen
 
 /************************************************************** Matches  *************************************************************/
 Route::post('/save/matches/tournament/{id}', [MatchController::class, 'saveMatches'])->middleware('auth:sanctum');
+Route::get('tiesheet/response/{id}', [MatchController::class, 'getTiesheetResponse']);
