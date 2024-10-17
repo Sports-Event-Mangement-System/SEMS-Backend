@@ -164,4 +164,16 @@ class TeamController extends Controller
         ]);
     }
 
+    public function teamsByTournament($id): JsonResponse
+    {
+        $teams = Team::where('tournament_id', $id)->get();
+        foreach ($teams as $team) {
+            $team->logo_urls = url('uploads/teams/'.$team->team_logo);
+        }
+        return response()->json([
+            'teams' => $teams,
+            'status' => true,
+        ]);
+    }
+
 }
