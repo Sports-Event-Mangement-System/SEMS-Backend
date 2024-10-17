@@ -53,6 +53,7 @@ Route::get('show/tournament/{id}', [TournamentController::class, 'show']);
 Route::get('active/tournaments', [TournamentController::class, 'activeTournaments']);
 
 /************************************************************** Teams  *************************************************************/
+Route::get('/teams/tournament/{id}', [TeamController::class, 'teamsByTournament']);
 Route::get('/teams', [TeamController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/store/team', [TeamController::class, 'store'])->middleware('auth:sanctum');
 Route::post('/update/team/{id}', [TeamController::class, 'update'])->middleware('auth:sanctum');
