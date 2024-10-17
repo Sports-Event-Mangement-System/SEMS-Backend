@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Matches;
+use App\Models\TiesheetResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -45,9 +46,32 @@ class MatchController extends Controller
                 Matches::create($match_db_data);
             }
         }
+        TiesheetResponse::updateOrCreate(
+            ['tournament_id' => $tournament_id],
+            ['response_data' => $matches]
+        );
         return response()->json([
             'status' => true,
             'message' => 'Matches saved successfully',
+        ]);
+    }
+
+    /**
+     * Get match response
+     *
+     * @param  int  $id it is tournament Id
+     * @return JsonResponse
+     */
+    public function getTiesheetResponse(int $id): JsonResponse
+    {
+        $matchResponse = TiesheetResponse::where('tournament_id', $id)->first();
+        $showTiesheet = $matchResponse ? true : false;
+        $matchResponse = $matchResponse ? $matchResponse->response_data : [];
+        return response()->json([
+            'status' => true,
+            'message' => 'Tournament response fetched successfully',
+            'data' => $matchResponse,
+            'showTiesheet' => $showTiesheet,
         ]);
     }
 }
