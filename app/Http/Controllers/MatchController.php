@@ -20,7 +20,7 @@ class MatchController extends Controller
     {
         $tournaments = Tournament::with(['matches', 'teams'])->get();
         $tournaments = $tournaments->map(function ($tournament) {
-            $tournament->image_url = url('uploads/tournaments/' . $tournament->t_images[0]);
+            $tournament->image_url = $tournament->t_images ? url('uploads/tournaments/' . $tournament->t_images[0]) : null;
             $tournament->matches = $tournament->matches->map(function ($match) use ($tournament) {
                 if ($match->participants) {
                     $participants = json_decode($match->participants, true);
