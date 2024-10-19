@@ -88,7 +88,7 @@ class ScheduleController extends Controller
                 }
 
                 $nextMatchId = ($currentRound < $totalRounds) ? $matchId + $matchesInRound : null;
-                $state = (count($matchParticipants) == 1) ? "WALK_OVER" : "SCHEDULED";
+                $state = (count($matchParticipants) == 1) ? "WALK_OVER" : "UPCOMING";
 
                 $match = $this->createMatchEntry($matchId++, $matchParticipants, $nextMatchId, (string)$currentRound, $state);
 
@@ -125,10 +125,10 @@ class ScheduleController extends Controller
 
         $matches[count($matches) - 1]['nextMatchId'] = null;
 
-        return array_reverse($matches);
+        return $matches;
     }
 
-    private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "SCHEDULED"): array
+    private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "UPCOMING"): array
     {
         $isWalkover = ($state == "WALK_OVER");
 
@@ -146,7 +146,6 @@ class ScheduleController extends Controller
                     'isWinner' => ($state == "WALK_OVER"),
                     'status' => ($state == "WALK_OVER") ? "WALK_OVER" : null,
                     'name' => $participant['name'] ?? '',
-                    'picture' => "teamlogos/client_team_default_logo",
                 ];
             }, $participants),
         ];
