@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tiesheet_responses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tournament_id')->constrained('tournaments');
-            $table->json('response_data');
+            $table->longText('response_data');
             $table->timestamps();
         });
     }

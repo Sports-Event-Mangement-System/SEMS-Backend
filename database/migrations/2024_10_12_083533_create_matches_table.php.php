@@ -14,19 +14,19 @@ return new class extends Migration
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
             $table->integer('match_id');
-            $table->foreignId('tournament_id')->constrained('tournaments')->OnDelete('cascade');
-            $table->foreignId('team_id_1')->nullable()->constrained('teams')->OnDelete('cascade');
-            $table->foreignId('team_id_2')->nullable()->constrained('teams')->OnDelete('cascade');
+            $table->foreignId('tournament_id')->constrained('tournaments')->onDelete('cascade');
+            $table->foreignId('team_id_1')->nullable()->constrained('teams')->onDelete('cascade');
+            $table->foreignId('team_id_2')->nullable()->constrained('teams')->onDelete('cascade');
             $table->string('name');
             $table->integer('nextMatchId')->nullable();
             $table->integer('nextLooserMatchId')->nullable();
             $table->string('startTime')->nullable();
             $table->string('tournamentRoundText')->nullable();
-            $table->string('participants')->nullable();
+            $table->longText('participants')->nullable();
             $table->string('match_winner')->nullable();
             $table->string('match_looser')->nullable();
-            $table->string('state')->enum('NO_SHOW','WALK_OVER','NO_PARTY','DONE','SCORE_DONE');
-            $table->string('match_report')->nullable();
+            $table->enum('state', ['NO_SHOW', 'WALK_OVER', 'NO_PARTY', 'DONE', 'SCORE_DONE', 'UPCOMING']);
+            $table->text('match_report')->nullable();
             $table->timestamps();
         });
     }

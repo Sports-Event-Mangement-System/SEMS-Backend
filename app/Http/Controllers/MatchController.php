@@ -4,11 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Models\Matches;
 use App\Models\TiesheetResponse;
+use App\Models\Tournament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MatchController extends Controller
 {
+
+    /**
+     * Save matches to the database
+     *
+     * @return JsonResponse
+     */
+    public function index(): JsonResponse
+    {
+        $tournaments = Tournament::with(['matches', 'teams'])->get();
+        $tournaments = $tournaments->map(function ($tournament) {
+            $tournament->image_url = url('uploads/tournaments/' . $tournament->t_images[0]);
+            $tournament->matches = $tournament->matches->map(function ($match) use ($tournament) {
+                if ($match->participants) {
+                    $participants = json_decode($match->participants, true);
+                    $updatedParticipants = [];
+                    foreach ($participants as $participant) {
+                        $team = $tournament->teams->firstWhere('id', $participant['id']);
+                        if ($team) {
+                            $participant['logo_url'] = url('uploads/teams/' . $team->team_logo);
+                        }
+                        $updatedParticipants[] = $participant;
+                    }
+                    $match->participants = $updatedParticipants;
+                }
+                return $match;
+            });
+            return $tournament;
+        });
+        return response()->json([
+            'status' => true,
+            'message' => 'Matches fetched successfully',
+            'tournaments' => $tournaments,
+        ]);
+    }
+
     /**
      * Save matches to the database
      *
@@ -34,7 +70,7 @@ class MatchController extends Controller
                     'nextLooserMatchId' => null,
                     'tournamentRoundText' => (string) ceil($match['id'] / 2),
                     'startTime' => '',
-                    'state' => 'UPCOMING',
+                    'state' => $match['state'],
                     'participants' => $match['state'] == 'WALK_OVER' ? json_encode([$match['participants'][0]]) : json_encode($match['participants']),
                     'match_id' => $match['id'],
                 ];
@@ -74,4 +110,25 @@ class MatchController extends Controller
             'showTiesheet' => $showTiesheet,
         ]);
     }
+
+    /**
+     * Delete tiesheet
+     *
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function deleteTiesheet(int $id): JsonResponse
+    {
+        // Delete the tiesheet response
+        TiesheetResponse::where('tournament_id', $id)->delete();
+
+        // Delete related matches
+        Matches::where('tournament_id', $id)->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Tiesheet and related matches deleted successfully',
+        ]);
+    }
+
 }
