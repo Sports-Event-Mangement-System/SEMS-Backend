@@ -15,7 +15,7 @@ class TeamController extends Controller
 {
     public function index(): JsonResponse
     {
-        $teams = Team::all();
+        $teams = Team::with('tournament')->get();
         foreach ($teams as $team) {
             $team->logo_urls = url('uploads/teams/'.$team->team_logo);
         }
