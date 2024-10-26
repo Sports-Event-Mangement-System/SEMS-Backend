@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\MatchHelper;
 use App\Models\Matches;
+use App\Models\Team;
 use App\Models\TiesheetResponse;
 use App\Models\Tournament;
 use Illuminate\Http\JsonResponse;
@@ -16,24 +18,13 @@ class MatchController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index() : JsonResponse
     {
         $tournaments = Tournament::with(['matches', 'teams'])->get();
         $tournaments = $tournaments->map(function ($tournament) {
             $tournament->image_url = url('uploads/tournaments/' . $tournament->t_images[0]);
             $tournament->matches = $tournament->matches->map(function ($match) use ($tournament) {
-                if ($match->participants) {
-                    $participants = json_decode($match->participants, true);
-                    $updatedParticipants = [];
-                    foreach ($participants as $participant) {
-                        $team = $tournament->teams->firstWhere('id', $participant['id']);
-                        if ($team) {
-                            $participant['logo_url'] = url('uploads/teams/' . $team->team_logo);
-                        }
-                        $updatedParticipants[] = $participant;
-                    }
-                    $match->participants = $updatedParticipants;
-                }
+                $match->participants = MatchHelper::processParticipants($match, $tournament);
                 return $match;
             });
             return $tournament;
@@ -52,7 +43,7 @@ class MatchController extends Controller
      * @param  int  $tournament_id
      * @return JsonResponse
      */
-    public function saveMatches(Request $request, int $tournament_id): JsonResponse
+    public function saveMatches(Request $request, int $tournament_id) : JsonResponse
     {
         $matches = $request->matches;
         foreach ($matches as $match) {
@@ -61,11 +52,11 @@ class MatchController extends Controller
                 ->where('match_id', $match['id'])
                 ->first();
 
-            if (!$existingMatch) {
+            if (! $existingMatch) {
                 // Prepare database match data
                 $match_db_data = [
                     'tournament_id' => $tournament_id,
-                    'name' => ($match['state'] == 'WALK_OVER' ? 'Walkover Match ' : 'Round '.$match['tournamentRoundText'].' Match ').$match['id'],
+                    'name' => ($match['state'] == 'WALK_OVER' ? 'Walkover Match ' : 'Round ' . $match['tournamentRoundText'] . ' Match ') . $match['id'],
                     'nextMatchId' => $match['nextMatchId'],
                     'nextLooserMatchId' => null,
                     'tournamentRoundText' => (string) ceil($match['id'] / 2),
@@ -76,7 +67,9 @@ class MatchController extends Controller
                 ];
 
                 $match_db_data['team_id_1'] = $match['participants'][0]['id'];
-                isset( $match_db_data['team_id_2'] ) ? $match_db_data['team_id_2'] = $match['participants'][1]['id']: $match_db_data['team_id_2'] = null;
+                if (isset($match['participants'][1]['id'])) {
+                    $match_db_data['team_id_2'] = $match['participants'][1]['id'];
+                }
 
                 // Save match data to the database
                 Matches::create($match_db_data);
@@ -95,20 +88,26 @@ class MatchController extends Controller
     /**
      * Get match response
      *
-     * @param  int  $id it is tournament Id
+     * @param  int  $id  it is tournament Id
      * @return JsonResponse
      */
-    public function getTiesheetResponse(int $id): JsonResponse
+    public function getTiesheetResponse(int $id) : JsonResponse
     {
         $matchResponse = TiesheetResponse::where('tournament_id', $id)->first();
         $showTiesheet = $matchResponse ? true : false;
         $matchResponse = $matchResponse ? $matchResponse->response_data : [];
+        if ($matchResponse) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Tiehseet fetched successfully',
+                'data' => $matchResponse,
+                'showTiesheet' => $showTiesheet,
+            ]);
+        }
         return response()->json([
-            'status' => true,
-            'message' => 'Tournament response fetched successfully',
-            'data' => $matchResponse,
-            'showTiesheet' => $showTiesheet,
-        ]);
+            'status' => false,
+            'message' => 'Tiesheetnot found',
+        ], 404);
     }
 
     /**
@@ -117,7 +116,7 @@ class MatchController extends Controller
      * @param  int  $id
      * @return JsonResponse
      */
-    public function deleteTiesheet(int $id): JsonResponse
+    public function deleteTiesheet(int $id) : JsonResponse
     {
         // Delete the tiesheet response
         TiesheetResponse::where('tournament_id', $id)->delete();
@@ -131,4 +130,115 @@ class MatchController extends Controller
         ]);
     }
 
+    /**
+     * Get match details
+     *
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function getMatchDetails(int $id) : JsonResponse
+    {
+        $match = Matches::where('id', $id)->first();
+        if (! $match) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Match not found',
+            ], 404);
+        }
+        $tournament = Tournament::with('teams')->find($match->tournament_id);
+        $match->tournament_name = $tournament->t_name;
+        $match->participants = MatchHelper::processParticipants($match, $tournament);
+        return response()->json([
+            'status' => true,
+            'message' => 'Match details fetched successfully',
+            'data' => $match,
+        ]);
+    }
+
+
+    /**
+     * Update matches
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function updateMatch(Request $request, int $id) : JsonResponse
+    {
+        $match = Matches::findOrFail($id);
+        $winner_team = Team::find($request->matchWinner);
+
+        $participants = json_decode($match->participants, true);
+
+        $isTeam1Winner = $request->matchWinner === $match->team_id_1;
+        $participants[0]['isWinner'] = $isTeam1Winner;
+        $participants[1]['isWinner'] = ! $isTeam1Winner;
+
+        // Update result texts
+        $participants[0]['resultText'] = $request->team1ResultText ?? null;
+        $participants[1]['resultText'] = $request->team2ResultText ?? null;
+
+        // Update match details
+        $match->update([
+            'startTime' => $request->startTime,
+            'match_winner' => $request->matchWinner ?? null,
+            'participants' => json_encode($participants),
+            'state' => $request->state,
+        ]);
+
+        // Update next match participants Only if the match is not a final match
+        if ($match->nextMatchId !== null) {
+            $next_match = Matches::where('match_id', $match->nextMatchId)->first();
+            $similar_matches = Matches::where('nextMatchId', $match->nextMatchId)->get();
+
+            foreach ($similar_matches as $index => $similar_match) {
+                if ($match->match_id === $similar_match->match_id) {
+                    $next_match_participants = json_decode($next_match->participants, true);
+
+                    if ($request->matchWinner !== null) {
+                        $next_match_participants[$index]['id'] = $winner_team->id;
+                        $next_match_participants[$index]['name'] = $winner_team->team_name;
+                    } else {
+                        $next_match_participants[$index]['id'] = null;
+                        $next_match_participants[$index]['name'] = null;
+                    }
+
+                    // Update the next match's team slots
+                    if ($index === 0) {
+                        $next_match->team_id_1 = $request->matchWinner !== null ? $winner_team->id : null;
+                    } elseif ($index === 1) {
+                        $next_match->team_id_2 = $request->matchWinner !== null ? $winner_team->id : null;
+                    }
+
+                    $next_match->update([
+                        'team_id_1' => $next_match->team_id_1 ?? null,
+                        'team_id_2' => $next_match->team_id_2 ?? null,
+                        'participants' => json_encode($next_match_participants),
+                    ]);
+                }
+            }
+        }
+
+        $tiesheet_response = TiesheetResponse::where('tournament_id', $match->tournament_id)->first();
+        if ($tiesheet_response) {
+            $response_data = $tiesheet_response->response_data;
+
+            foreach ($response_data as &$response_match) {
+                if ($response_match['id'] == $match->match_id) {
+                    $response_match['startTime'] = $request->startTime;
+                    $response_match['state'] = $request->state;
+                    $response_match['participants'] = $participants;
+                }
+                if ($match->nextMatchId !== null && $response_match['id'] == $next_match->match_id) {
+                    $response_match['participants'] = $next_match_participants;
+                }
+            }
+            // Save the updated response data back to the database
+            $tiesheet_response->update(['response_data' => $response_data]);
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Matches updated successfully',
+        ]);
+    }
 }

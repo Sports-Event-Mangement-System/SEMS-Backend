@@ -23,10 +23,8 @@ return new class extends Migration
             $table->string('startTime')->nullable();
             $table->string('tournamentRoundText')->nullable();
             $table->longText('participants')->nullable();
-            $table->string('match_winner')->nullable();
-            $table->string('match_looser')->nullable();
-            $table->enum('state', ['NO_SHOW', 'WALK_OVER', 'NO_PARTY', 'DONE', 'SCORE_DONE', 'UPCOMING']);
-            $table->text('match_report')->nullable();
+            $table->integer('match_winner')->nullable();
+            $table->enum('state', ['NO_SHOW','SCHEDULED', 'WALK_OVER', 'DONE', 'SCORE_DONE', 'UPCOMING']);
             $table->timestamps();
         });
     }
