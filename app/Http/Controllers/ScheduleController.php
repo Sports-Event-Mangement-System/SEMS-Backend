@@ -11,12 +11,12 @@ class ScheduleController extends Controller
 {
     protected int $tournament_id;
 
-    public function tiesheetGenerator(Request $request, $id): JsonResponse
+    public function tiesheetGenerator(Request $request, $id) : JsonResponse
     {
         $tournament = Tournament::with('teams')->find($id);
         $this->tournament_id = $id;
         // Check if the tournament exists and has teams
-        if (!$tournament) {
+        if (! $tournament) {
             return response()->json([
                 'status' => false,
                 'message' => 'Tournament not found or no teams available.',
@@ -26,8 +26,8 @@ class ScheduleController extends Controller
         $teams = $tournament->teams;
         $formattedDate = now()->format('Y-m-d');
         $registrationEndDate = $formattedDate >= $tournament->re_date;
-        if (!$registrationEndDate) {
-            $totalMatches = $tournament->max_teams;
+        if (! $registrationEndDate) {
+            $max_teams = $tournament->max_teams;
         } else {
             if (count($teams) < 2) {
                 return response()->json([
@@ -35,17 +35,29 @@ class ScheduleController extends Controller
                     'message' => 'At least 2 teams are required to generate matches.',
                 ], 400);
             }
-            $totalMatches = count($teams);
+            $max_teams = count($teams);
         }
         $randomTeams = $request->input('randomTeams') === 'true';
-        $response = $this->generateMatchesResponse($totalMatches, $teams, $randomTeams);
+        if ($tournament->tournament_type == 'round-robin') {
+            $response = $this->generateRoundRobinMatches($max_teams, $teams, $randomTeams);
+            return response()->json([
+                'status' => true,
+                'message' => 'Round Robin Tisheet generated successfully',
+                'matches' => $response,
+                'teams' => $teams,
+                'saveButton' => $registrationEndDate,
+            ]);
+        } else {
+            $response = $this->generateMatchesResponse($max_teams, $teams, $randomTeams);
+            return response()->json([
+                'status' => true,
+                'message' => 'Single Elimination Tisheet generated successfully',
+                'matches' => $response,
+                'saveButton' => $registrationEndDate,
+            ]);
+        }
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Tisheet generated successfully',
-            'matches' => $response,
-            'saveButton' => $registrationEndDate,
-        ]);
+
     }
 
     /**
@@ -56,7 +68,7 @@ class ScheduleController extends Controller
      * @param bool $randomTeams
      * @return array
      */
-    public function generateMatchesResponse($max_teams, $teams, $randomTeams = false): array
+    public function generateMatchesResponse($max_teams, $teams, $randomTeams = false) : array
     {
         $matches = [];
         $matchId = 1;
@@ -81,7 +93,7 @@ class ScheduleController extends Controller
                 } else {
                     // Add up to two participants to this match
                     for ($j = 0; $j < 2; $j++) {
-                        if (!empty($participants)) {
+                        if (! empty($participants)) {
                             $matchParticipants[] = array_shift($participants);
                         }
                     }
@@ -90,7 +102,7 @@ class ScheduleController extends Controller
                 $nextMatchId = ($currentRound < $totalRounds) ? $matchId + $matchesInRound : null;
                 $state = (count($matchParticipants) == 1) ? "WALK_OVER" : "UPCOMING";
 
-                $match = $this->createMatchEntry($matchId++, $matchParticipants, $nextMatchId, (string)$currentRound, $state);
+                $match = $this->createMatchEntry($matchId++, $matchParticipants, $nextMatchId, (string) $currentRound, $state);
 
                 if ($state == "WALK_OVER") {
                     $match['participants'][0]['isWinner'] = true;
@@ -128,16 +140,17 @@ class ScheduleController extends Controller
         return $matches;
     }
 
-    private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "UPCOMING"): array
+    private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "UPCOMING") : array
     {
         $isWalkover = ($state == "WALK_OVER");
 
         return [
             'id' => $matchId,
             'nextMatchId' => $nextMatchId,
+            'round' => (int) $round,
             'name' => ($isWalkover ? 'Walkover Match ' : 'Match ') . $matchId,
             'tournamentRoundText' => $round,
-            'startTime' => now()->toDateString(),
+            'startTime' => null,
             'state' => $state,
             'participants' => array_map(function ($participant) use ($state) {
                 return [
@@ -159,9 +172,10 @@ class ScheduleController extends Controller
      * @param bool $randomTeams
      * @return array
      */
-    public function generateParticipants($max_teams, $teams, $randomTeams = false): array
+    public function generateParticipants($max_teams, $teams, $randomTeams = false) : array
     {
         $participants = [];
+
         $teamCount = count($teams);
 
         for ($i = 0; $i < $max_teams; $i++) {
@@ -172,6 +186,7 @@ class ScheduleController extends Controller
                     'name' => $team['team_name'], // Use team name
                     'status' => null,
                     'isWinner' => false,
+                    'teamLogo' => url('uploads/teams/' . $team['team_logo']),
                 ];
             } else {
                 $participants[] = [
@@ -189,4 +204,68 @@ class ScheduleController extends Controller
         return $participants;
     }
 
+    public function generateRoundRobinMatches(int $max_teams, $teams, $randomTeams = false) : array
+    {
+        $matches = [];
+
+        // Generate participants using the existing function
+        $participants = $this->generateParticipants($max_teams, $teams, $randomTeams);
+
+        if($max_teams % 2 == 0) {
+            $number_of_rounds = $max_teams - 1;
+            $match_per_round = $max_teams / 2;
+        } else {
+            $number_of_rounds = $max_teams;
+            $match_per_round = ceil($max_teams / 2);
+        }
+        // Rotate teams to generate matches for each round
+        for ($round = 0; $round < $number_of_rounds; $round++) {
+            for ($i = 0; $i < $match_per_round; $i++) {
+                $home = $participants[$i];
+                $away = $participants[$max_teams - 1 - $i];
+                if ($home === $away) {
+                    $home = [
+                        'id' => $home['id'],
+                        'name' => $home['name'],
+                        'status' => 'WALK_OVER',
+                        'isWinner' => true,
+                    ];
+                    $away = [
+                        'id' => null,
+                        'name' => null,
+                        'status' => null,
+                        'isWinner' => false,
+                    ];
+                }
+
+                // Create matches, skipping the "Bye" team
+                if ($home['status'] !== 'WALK_OVER' && $away['status'] !== 'WALK_OVER') {
+                    $matches[] = $this->createMatchEntry(
+                        count($matches) + 1,
+                        [$home, $away],
+                        null,
+                        (string) ($round + 1),
+                        "UPCOMING"
+                    );
+                } elseif($home['status'] === 'WALK_OVER' || $away['status'] === null) {
+                    // Handle the "Bye" match
+                    $matches[] = $this->createMatchEntry(
+                        count($matches) + 1,
+                        [$home],
+                        null,
+                        (string) ($round + 1),
+                        "WALK_OVER"
+                    );
+                }
+            }
+
+            // Rotate participants, keeping the first participant fixed
+            $participants = array_merge(
+                array_slice($participants, 1),
+                [array_shift($participants)]
+            );
+        }
+
+        return $matches;
+    }
 }
