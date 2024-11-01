@@ -11,6 +11,13 @@ class ScheduleController extends Controller
 {
     protected int $tournament_id;
 
+    /**
+     * Generate the tournament schedule
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
     public function tiesheetGenerator(Request $request, $id) : JsonResponse
     {
         $tournament = Tournament::with('teams')->find($id);
@@ -40,10 +47,12 @@ class ScheduleController extends Controller
         $randomTeams = $request->input('randomTeams') === 'true';
         if ($tournament->tournament_type == 'round-robin') {
             $response = $this->generateRoundRobinMatches($max_teams, $teams, $randomTeams);
+            $max_rounds = is_array(end($response)) ? end($response)['round'] : '';
             return response()->json([
                 'status' => true,
                 'message' => 'Round Robin Tisheet generated successfully',
                 'matches' => $response,
+                'max_rounds' => $max_rounds,
                 'teams' => $teams,
                 'saveButton' => $registrationEndDate,
             ]);
@@ -140,6 +149,16 @@ class ScheduleController extends Controller
         return $matches;
     }
 
+    /**
+     * Create a match entry
+     *
+     * @param int $matchId
+     * @param array $participants
+     * @param int|null $nextMatchId
+     * @param int $round
+     * @param string $state
+     * @return array
+     */
     private function createMatchEntry($matchId, $participants, $nextMatchId, $round, $state = "UPCOMING") : array
     {
         $isWalkover = ($state == "WALK_OVER");
@@ -204,6 +223,14 @@ class ScheduleController extends Controller
         return $participants;
     }
 
+    /**
+     * Generate round robin matches for the tournament
+     *
+     * @param int $max_teams
+     * @param array $teams
+     * @param bool $randomTeams
+     * @return array
+     */
     public function generateRoundRobinMatches(int $max_teams, $teams, $randomTeams = false) : array
     {
         $matches = [];
