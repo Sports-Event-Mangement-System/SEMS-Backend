@@ -178,6 +178,7 @@ class ScheduleController extends Controller
                     'isWinner' => ($state == "WALK_OVER"),
                     'status' => ($state == "WALK_OVER") ? "WALK_OVER" : null,
                     'name' => $participant['name'] ?? '',
+                    'teamLogo' => $participant['teamLogo'] ?? '',
                 ];
             }, $participants),
         ];
@@ -238,7 +239,7 @@ class ScheduleController extends Controller
         // Generate participants using the existing function
         $participants = $this->generateParticipants($max_teams, $teams, $randomTeams);
 
-        if($max_teams % 2 == 0) {
+        if ($max_teams % 2 == 0) {
             $number_of_rounds = $max_teams - 1;
             $match_per_round = $max_teams / 2;
         } else {
@@ -274,7 +275,7 @@ class ScheduleController extends Controller
                         (string) ($round + 1),
                         "UPCOMING"
                     );
-                } elseif($home['status'] === 'WALK_OVER' || $away['status'] === null) {
+                } elseif ($home['status'] === 'WALK_OVER' || $away['status'] === null) {
                     // Handle the "Bye" match
                     $matches[] = $this->createMatchEntry(
                         count($matches) + 1,

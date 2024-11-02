@@ -6,6 +6,7 @@ use App\Helper\EmailHelper;
 use App\Helper\ImageHelper;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
+use App\Models\Matches;
 use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Http\JsonResponse;
@@ -13,11 +14,11 @@ use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
-    public function index(): JsonResponse
+    public function index() : JsonResponse
     {
         $teams = Team::with('tournament')->get();
         foreach ($teams as $team) {
-            $team->logo_urls = url('uploads/teams/'.$team->team_logo);
+            $team->logo_urls = url('uploads/teams/' . $team->team_logo);
         }
 
         return response()->json([
@@ -26,13 +27,13 @@ class TeamController extends Controller
         ]);
     }
 
-    public function store(StoreTeamRequest $request): JsonResponse
+    public function store(StoreTeamRequest $request) : JsonResponse
     {
         $validatedData = $request->validated();
         // Handle file uploads
         if ($request->hasFile('team_logo')) {
             $file = $request->file('team_logo');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/teams'), $filename);
         }
 
@@ -62,24 +63,24 @@ class TeamController extends Controller
         $player_save->save();
 
         return response()->json([
-            'message' => $team->team_name.'Team Register successfully',
+            'message' => $team->team_name . 'Team Register successfully',
             'team' => $team,
             'status' => true,
         ]);
     }
-    public function update(UpdateTeamRequest $request, $id): JsonResponse
+    public function update(UpdateTeamRequest $request, $id) : JsonResponse
     {
         $validatedData = $request->validated();
         $team = Team::find($id);
 
         if ($request->hasFile('team_logo')) {
-            if (!empty($team->team_logo) && file_exists(public_path('uploads/teams/' . $team->team_logo))) {
-            unlink(public_path('uploads/teams/' . $team->team_logo));
+            if (! empty($team->team_logo) && file_exists(public_path('uploads/teams/' . $team->team_logo))) {
+                unlink(public_path('uploads/teams/' . $team->team_logo));
             }
             $file = $request->file('team_logo');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/teams'), $filename);
-        } elseif (!empty($request->existing_images)) {
+        } elseif (! empty($request->existing_images)) {
             $filename = basename($request->existing_images);
         }
 
@@ -95,7 +96,7 @@ class TeamController extends Controller
         ]);
         $players = $request->players;
         foreach ($players as $key => $player) {
-            if( !empty($player['player_id'] )) {
+            if (! empty($player['player_id'])) {
                 $playerfind = Player::findOrFail($player['player_id']);
                 $playerfind->update([
                     'team_id' => $team->id,
@@ -103,7 +104,7 @@ class TeamController extends Controller
                     'player_email' => $player['player_email'],
                     'is_captain' => $key === 0 ? 1 : 0,
                 ]);
-            }else{
+            } else {
                 $player_save = Player::create([
                     'team_id' => $team->id,
                     'player_name' => $player['player_name'],
@@ -121,7 +122,7 @@ class TeamController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, $id): JsonResponse
+    public function updateStatus(Request $request, $id) : JsonResponse
     {
         $team = Team::find($id);
         $team->status = $request->status;
@@ -134,24 +135,38 @@ class TeamController extends Controller
         }
 
         return response()->json([
-            'message' => $team->team_name.'status updated successfully',
+            'message' => $team->team_name . 'status updated successfully',
             'status' => true,
         ]);
     }
 
-    public function getTeam($id): JsonResponse
+    public function getTeam($id) : JsonResponse
     {
         $team = Team::with('tournament')->findOrFail($id);
-        $team->logo_urls = url('uploads/teams/'.$team->team_logo);
+        $team->logo_urls = url('uploads/teams/' . $team->team_logo);
         $team['players'] = $team->players;
-
+        $matches = Matches::where('team_id_1', $id)->orWhere('team_id_2', $id)->get();
+        $fixture_matches = [];
+        $result_matches = [];
+        foreach ($matches as $match) {
+            $participants = json_decode($match->participants, true);
+            $match['participants'] = $participants;
+            if ($match['state'] === 'UPCOMING' || $match['state'] === 'SCHEDULED') {
+                $fixture_matches[] = $match;
+            }
+            if ($match['state'] === 'DONE' || $match['state'] === 'SCORE_DONE' || $match['state'] === 'WALK_OVER') {
+                $result_matches[] = $match;
+            }
+        }
+        $team['fixture_matches'] = $fixture_matches;
+        $team['result_matches'] = $result_matches;
         return response()->json([
             'team' => $team,
             'status' => true,
         ]);
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy($id) : JsonResponse
     {
         $team = Team::find($id);
         if ($team) {
@@ -164,11 +179,11 @@ class TeamController extends Controller
         ]);
     }
 
-    public function teamsByTournament($id): JsonResponse
+    public function teamsByTournament($id) : JsonResponse
     {
         $teams = Team::where('tournament_id', $id)->get();
         foreach ($teams as $team) {
-            $team->logo_urls = url('uploads/teams/'.$team->team_logo);
+            $team->logo_urls = url('uploads/teams/' . $team->team_logo);
         }
         return response()->json([
             'teams' => $teams,
