@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tournament_id')->constrained('tournaments');
             $table->longText('response_data');
+            $table->longText('points_table')->nullable();
             $table->timestamps();
         });
     }
