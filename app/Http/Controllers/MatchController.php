@@ -170,9 +170,14 @@ class MatchController extends Controller
 
         $participants = json_decode($match->participants, true);
 
-        $isTeam1Winner = $request->matchWinner === $match->team_id_1;
-        $participants[0]['isWinner'] = $isTeam1Winner;
-        $participants[1]['isWinner'] = ! $isTeam1Winner;
+        if ($winner_team) {
+            $isTeam1Winner = $request->matchWinner == $match->team_id_1;
+            $participants[0]['isWinner'] = $isTeam1Winner;
+            $participants[1]['isWinner'] = ! $isTeam1Winner;
+        } else {
+            $participants[0]['isWinner'] = false;
+            $participants[1]['isWinner'] = false;
+        }
 
         // Update result texts
         $participants[0]['resultText'] = $request->team1ResultText ?? null;
