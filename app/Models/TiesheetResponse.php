@@ -13,11 +13,12 @@ class TiesheetResponse extends Model
     protected $fillable = [
         'tournament_id',
         'response_data',
-        // Add any other fields you want to be mass-assignable
+        'points_table',
     ];
 
     protected $casts = [
         'response_data' => 'array',
+        'points_table' => 'array',
     ];
 
     public function tournament()

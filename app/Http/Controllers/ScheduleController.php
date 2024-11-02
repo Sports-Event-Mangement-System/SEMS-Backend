@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\MatchHelper;
 use App\Models\Matches;
 use App\Models\Tournament;
 use Illuminate\Http\JsonResponse;
@@ -48,12 +49,14 @@ class ScheduleController extends Controller
         if ($tournament->tournament_type == 'round-robin') {
             $response = $this->generateRoundRobinMatches($max_teams, $teams, $randomTeams);
             $max_rounds = is_array(end($response)) ? end($response)['round'] : '';
+            $points_table = MatchHelper::generatePointsTable($teams);
             return response()->json([
                 'status' => true,
                 'message' => 'Round Robin Tisheet generated successfully',
                 'matches' => $response,
                 'max_rounds' => $max_rounds,
                 'teams' => $teams,
+                'points_table' => $points_table,
                 'saveButton' => $registrationEndDate,
             ]);
         } else {

@@ -77,7 +77,11 @@ class MatchController extends Controller
         }
         TiesheetResponse::updateOrCreate(
             ['tournament_id' => $tournament_id],
-            ['response_data' => $matches]
+            [
+                'tournament_id' => $tournament_id,
+                'response_data' => $matches,
+                'points_table' => $request->pointsTable ? $request->pointsTable : [],
+            ],
         );
         return response()->json([
             'status' => true,
