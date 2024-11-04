@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helper\MatchHelper;
+use App\Http\Requests\UpdateMatchRequest;
 use App\Models\Matches;
 use App\Models\Team;
 use App\Models\TiesheetResponse;
@@ -167,8 +168,9 @@ class MatchController extends Controller
      * @param  int  $id
      * @return JsonResponse
      */
-    public function updateMatch(Request $request, int $id) : JsonResponse
+    public function updateMatch(UpdateMatchRequest $request, int $id) : JsonResponse
     {
+        $request_all = $request->all();
         $match = Matches::findOrFail($id);
         $winner_team = Team::find($request->matchWinner);
 
@@ -231,6 +233,21 @@ class MatchController extends Controller
         $tiesheet_response = TiesheetResponse::where('tournament_id', $match->tournament_id)->first();
         if ($tiesheet_response) {
             $response_data = $tiesheet_response->response_data;
+            $points_table = $tiesheet_response->points_table;
+            if ($points_table) {
+                foreach ($points_table as &$points_table_team) {
+                    if (($points_table_team['id'] === $participants[0]['id'] || $points_table_team['id'] === $participants[1]['id']) && $points_table_team['matches_need_to_play'] > 0 && $request->matchWinner !== null ) {
+                        if ($points_table_team['id'] !== (int) $request->matchWinner) {
+                            $points_table_team['matches_lost'] = $points_table_team['matches_lost'] + 1;
+                        } else {
+                            $points_table_team['points'] = $points_table_team['points'] + 3;
+                            $points_table_team['matches_won'] = $points_table_team['matches_won'] + 1;
+                        }
+                        $points_table_team['matches_need_to_play'] = $points_table_team['matches_need_to_play'] - 1;
+                        $points_table_team['matches_played'] = $points_table_team['matches_played'] + 1;
+                    }
+                }
+            }
 
             foreach ($response_data as &$response_match) {
                 if ($response_match['id'] == $match->match_id) {
@@ -243,7 +260,7 @@ class MatchController extends Controller
                 }
             }
             // Save the updated response data back to the database
-            $tiesheet_response->update(['response_data' => $response_data]);
+            $tiesheet_response->update(['response_data' => $response_data, 'points_table' => $points_table]);
         }
         return response()->json([
             'status' => true,
