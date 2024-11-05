@@ -70,7 +70,7 @@ Route::get('/tiesheet/tournament/{id}', [ScheduleController::class, 'tiesheetGen
 /************************************************************** Matches  *************************************************************/
 Route::get('/tournament/matches', [MatchController::class, 'index']);
 Route::post('/save/matches/tournament/{id}', [MatchController::class, 'saveMatches'])->middleware('auth:sanctum');
-Route::get('tiesheet/response/{id}', [MatchController::class, 'getTiesheetResponse']);
+Route::get('/tiesheet/response/{id}', [MatchController::class, 'getTiesheetResponse']);
 Route::delete('delete/tiesheet/{id}', [MatchController::class, 'deleteTiesheet'])->middleware('auth:sanctum');
 Route::get('match/details/{id}', [MatchController::class, 'getMatchDetails']);
 Route::post('update/match/{id}', [MatchController::class, 'updateMatch'])->middleware('auth:sanctum');

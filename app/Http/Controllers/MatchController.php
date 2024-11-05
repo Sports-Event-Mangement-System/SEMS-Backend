@@ -81,7 +81,7 @@ class MatchController extends Controller
             [
                 'tournament_id' => $tournament_id,
                 'response_data' => $matches,
-                'points_table' => $request->pointsTable ? $request->pointsTable : [],
+                'points_table' => $request->pointsTableData ? $request->pointsTableData : [],
             ],
         );
         return response()->json([
@@ -98,21 +98,25 @@ class MatchController extends Controller
      */
     public function getTiesheetResponse(int $id) : JsonResponse
     {
-        $matchResponse = TiesheetResponse::where('tournament_id', $id)->first();
-        $showTiesheet = $matchResponse ? true : false;
-        $matchResponse = $matchResponse ? $matchResponse->response_data : [];
-        if ($matchResponse) {
+        $tiesheetResponse = TiesheetResponse::where('tournament_id', $id)->first();
+        $showTiesheet = $tiesheetResponse ? true : false;
+        $matchResponse = $tiesheetResponse->response_data ?? [];
+        $pointsTable = $tiesheetResponse->points_table ?? [];
+        $max_rounds = is_array(end($matchResponse)) ? end($matchResponse)['round'] : '';
+        if ($tiesheetResponse) {
             return response()->json([
                 'status' => true,
                 'message' => 'Tiehseet fetched successfully',
-                'data' => $matchResponse,
+                'matches' => $matchResponse,
+                'points_table' => $pointsTable,
+                'max_rounds' => $max_rounds,
                 'showTiesheet' => $showTiesheet,
             ]);
         }
         return response()->json([
             'status' => false,
             'message' => 'Tiesheetnot found',
-        ], 404);
+        ]);
     }
 
     /**
