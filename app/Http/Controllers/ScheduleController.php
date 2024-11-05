@@ -260,6 +260,7 @@ class ScheduleController extends Controller
                         'name' => $home['name'],
                         'status' => 'WALK_OVER',
                         'isWinner' => true,
+                        'teamLogo' => $home['teamLogo'],
                     ];
                     $away = [
                         'id' => null,
