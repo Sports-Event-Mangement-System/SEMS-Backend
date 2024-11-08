@@ -39,35 +39,18 @@
 <div class="image_container">
     <img src="{{ url('uploads/logo/sems_logo.png') }}" alt="Sems_logo">
 </div>
-<h1>Hello, {{ $mailData['team']->team_name }} Team</h1>
-<b> <p>Your team has been selected for the match schedule in the tournament {{ $mailData['tournament']->t_name }}!</p> </b>
-<p>Tournament Name: {{ $mailData['tournament']->t_name }}</p>
-<p>Start Date: {{ $mailData['tournament']->ts_date }}</p>
-<p>End Date: {{ $mailData['tournament']->te_date }}</p>
-<p>Location: {{ $mailData['tournament']->address }}</p>
-<p><b>Team Name:</b> {{ $mailData['team']->team_name }}</p>
-<p><b>Team Coach:</b> {{ $mailData['team']->coach_name }}</p>
-<p><b>Phone Number:</b> {{ $mailData['team']->phone_number }}</p>
+<h1>Hello, Team</h1>
+<b> <p>Your team has been selected for the match schedule in the tournament !</p> </b>
+<p>Tournament Name:</p>
+<p>Start Date:</p>
+<p>End Date: </p>
+<p>Location: </p>
+<p><b>Team Name:</b> </p>
+<p><b>Team Coach:</b> </p>
+<p><b>Phone Number:</b> </p>
 <div class="table_container">
     <div class="team_table_container">
-        <table>
-            <thead>
-            <tr>
-                <th>Match Date</th>
-                <th>Opponent Team</th>
-                <th>Location</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach( $mailData['matches'] as $match )
-            <tr>
-                <td>{{ $match->date }}</td>
-                <td>{{ $match->opponent_team }}</td>
-                <td>{{ $match->location }}</td>
-            </tr>
-            @endforeach
-            </tbody>
-        </table>
+
     </div>
 </div>
 

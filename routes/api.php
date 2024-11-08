@@ -74,3 +74,6 @@ Route::get('/tiesheet/response/{id}', [MatchController::class, 'getTiesheetRespo
 Route::delete('delete/tiesheet/{id}', [MatchController::class, 'deleteTiesheet'])->middleware('auth:sanctum');
 Route::get('match/details/{id}', [MatchController::class, 'getMatchDetails']);
 Route::post('update/match/{id}', [MatchController::class, 'updateMatch'])->middleware('auth:sanctum');
+
+/************************************************************** Email  *************************************************************/
+Route::get('/send/match/schedule', [MatchController::class, 'sendMatchSchedule']);

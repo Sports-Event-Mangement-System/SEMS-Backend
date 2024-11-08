@@ -271,4 +271,14 @@ class MatchController extends Controller
             'message' => 'Matches updated successfully',
         ]);
     }
+
+    /**
+     * Send match schedule
+     *
+     * @param  Request  $request
+     */
+    public function sendMatchSchedule(Request $request)
+    {
+        return view('emails.matches.match_schedule');
+    }
 }
