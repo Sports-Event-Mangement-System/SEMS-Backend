@@ -29,23 +29,4 @@ class MatchHelper
         }
         return null;
     }
-
-    public static function generatePointsTable($teams)
-    {
-        $points_table = [];
-        $match_need_to_play = count($teams) - 1;
-        foreach ($teams as $key => $team) {
-            $points_table[$key] = [
-                'id' => $team->id,
-                'name' => $team->team_name,
-                'logo_url' => url('uploads/teams/' . $team->team_logo),
-                'points' => 0,
-                'matches_played' => 0,
-                'matches_won' => 0,
-                'matches_lost' => 0,
-                'matches_need_to_play' => $match_need_to_play,
-            ];
-        }
-        return $points_table;
-    }
 }
