@@ -106,6 +106,15 @@ class TournamentController extends Controller
                 return basename(parse_url($url, PHP_URL_PATH));
             }, $requestedExistingImages);
 
+            // Unlink images that are not in the requested existing images
+            $imagesToDelete = array_diff($existingImages, $requestedFilenames);
+            foreach ($imagesToDelete as $image) {
+                $imagePath = public_path('uploads/tournaments/' . $image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+
             // Set the filenames to the requested existing images
             $filenames = array_merge($filenames, $requestedFilenames);
         }

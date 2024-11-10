@@ -24,7 +24,7 @@ class UpdateTeamRequest extends FormRequest
         return [
             'tournament_id' => 'required',
             'team_name' => 'required',
-            'team_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'team_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:max_width=400,max_height=400',
             'coach_name' => 'required',
             'phone_number' => 'required',
             'email' => 'required|email',
@@ -47,6 +47,7 @@ class UpdateTeamRequest extends FormRequest
             $messages["players.$index.player_email.required"] = "Player $playerNumber email is required.";
             $messages["players.$index.player_email.email"] = "Player $playerNumber email must be a valid email address.";
         }
+        $messages['team_logo.dimensions'] = 'The team logo must not exceed 400x400 pixels.';
 
         return $messages;
     }

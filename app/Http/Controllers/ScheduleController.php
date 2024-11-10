@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\MatchHelper;
 use App\Models\Matches;
 use App\Models\Tournament;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +48,7 @@ class ScheduleController extends Controller
         if ($tournament->tournament_type == 'round-robin') {
             $response = $this->generateRoundRobinMatches($max_teams, $teams, $randomTeams);
             $max_rounds = is_array(end($response)) ? end($response)['round'] : '';
-            $points_table = MatchHelper::generatePointsTable($teams);
+            $points_table = $this->generatePointsTable($teams);
             return response()->json([
                 'status' => true,
                 'message' => 'Round Robin Tisheet generated successfully',
@@ -299,5 +298,31 @@ class ScheduleController extends Controller
         }
 
         return $matches;
+    }
+
+    /**
+     * Generate points table for the tournament
+     *
+     * @param array $teams
+     * @return array
+     */
+    public static function generatePointsTable($teams) : array
+    {
+        $points_table = [];
+        $match_need_to_play = count($teams) - 1;
+        $teams = collect($teams)->sortBy('team_name');
+        foreach ($teams as $key => $team) {
+            $points_table[$key] = [
+                'id' => $team->id,
+                'name' => $team->team_name,
+                'logo_url' => url('uploads/teams/' . $team->team_logo),
+                'points' => 0,
+                'matches_played' => 0,
+                'matches_won' => 0,
+                'matches_lost' => 0,
+                'matches_need_to_play' => $match_need_to_play,
+            ];
+        }
+        return $points_table;
     }
 }
