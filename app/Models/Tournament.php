@@ -24,4 +24,9 @@ class Tournament extends Model
     {
         return $this->hasMany(Matches::class);
     }
+
+    public function followers()
+    {
+        return $this->hasMany(Follower::class, 'followable_id');
+    }
 }
