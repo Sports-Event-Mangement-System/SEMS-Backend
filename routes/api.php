@@ -60,6 +60,7 @@ Route::post('/update/team/{id}', [TeamController::class, 'update'])->middleware(
 Route::post('/update-status/team/{id}', [TeamController::class, 'updateStatus'])->middleware('auth:sanctum');
 Route::get('/show/team/{id}', [TeamController::class, 'getTeam']);
 Route::delete('/delete/team/{id}', [TeamController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/follow/team/{id}', [TeamController::class, 'followTeam'])->middleware('auth:sanctum');
 
 /************************************************************** Players  *************************************************************/
 Route::get('/players', [PlayerController::class, 'index'])->middleware('auth:sanctum');

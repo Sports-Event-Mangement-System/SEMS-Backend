@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helper\EmailHelper;
-use App\Helper\ImageHelper;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
 use App\Models\Matches;
 use App\Models\Player;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -140,7 +140,7 @@ class TeamController extends Controller
         ]);
     }
 
-    public function getTeam($id) : JsonResponse
+    public function getTeam(Request $request, $id) : JsonResponse
     {
         $team = Team::with('tournament')->findOrFail($id);
         $team->logo_urls = url('uploads/teams/' . $team->team_logo);
@@ -160,6 +160,11 @@ class TeamController extends Controller
         }
         $team['fixture_matches'] = $fixture_matches;
         $team['result_matches'] = $result_matches;
+        if( $request->user_id && $team->followers->where('user_id', $request->user_id)->first()){
+            $team['is_followed'] = true;
+        }else{
+            $team['is_followed'] = false;
+        }
         return response()->json([
             'team' => $team,
             'status' => true,
@@ -187,6 +192,30 @@ class TeamController extends Controller
         }
         return response()->json([
             'teams' => $teams,
+            'status' => true,
+        ]);
+    }
+
+    public function followTeam(Request $request, $team_id) : JsonResponse
+    {
+        $team = Team::find($team_id);
+        $user = User::where('id', $request->user_id)->first();
+        $follower = $team->followers()->where('user_id', $user->id)->first();
+        if ($follower) {
+            $follower->update([
+                'user_email' => $user->email,
+                'team_id' => $team_id,
+            ]);
+        } else {
+            $team->followers()->create([
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'team_id' => $team_id,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Team followed successfully',
             'status' => true,
         ]);
     }
