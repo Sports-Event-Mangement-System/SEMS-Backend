@@ -84,30 +84,44 @@
             <h2>Sports Event Management System</h2>
         </div>
         <div>
-            <p>Hello Subash!</p>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum, veniam. Rerum, repudiandae! Omnis nostrum suscipit cupiditate adipisci tempore, praesentium aliquam! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eius ipsum nostrum, iure voluptas, quae vitae aut quidem eveniet omnis ab similique quod. Id, at deleniti omnis totam similique voluptatum labore ducimus fuga exercitationem nemo expedita aperiam hic incidunt fugit officia nesciunt! Consequuntur pariatur facilis, accusantium consectetur ipsum nam. Aliquid, ab?
-            </p>
+            @if($mailData['recipientType'] === 'team')
+                <p>Important notification regarding your team's upcoming match in the {{ $mailData['tournament']->t_name }}!
+                </p>
+                <p>Your team, {{ $mailData['supportedTeam']->team_name }}, has been scheduled to compete against {{ $mailData['opponentTeam']->team_name }}.
+                    As team management, please ensure all your players are informed and prepared for this important fixture.
+                </p>
+
+            @elseif($mailData['recipientType'] === 'player')
+                <p>Get ready for your upcoming match in the {{ $mailData['tournament']->t_name }}!</p>
+                <p>Your team, {{ $mailData['supportedTeam']->team_name }}, will be facing {{ $mailData['opponentTeam']->team_name }}.
+                    As a valued player, your participation and preparation are crucial for the team's success.</p>
+
+            @else
+                <p>Thanks for following {{ $mailData['supportedTeam']->team_name }}!</p>
+                <p>We're excited to inform you that {{ $mailData['supportedTeam']->team_name }} has an upcoming match against
+                    {{ $mailData['opponentTeam']->team_name }}
+                    in the {{ $mailData['tournament']->t_name }}.</p>
+            @endif
         </div>
         <div class="match_details">
             <h1>KICKOFF MATCH</h1>
             <div class="match">
                 <div class="image_container">
-                    <img class="logo" src="{{ url('uploads/logo/sems_logo.png') }}" alt="Sems_logo">
-                    <h3>Subash</h3>
+                    <img class="logo" src="{{ url('uploads/logo/'. $mailData['participants'][0]['teamLogo']) }}" alt="Sems_logo">
+                    <h3>{{ $mailData['participants'][0]['name'] }}</h3>
                 </div>
                 <h2 class="match_schedule">
-                    Sat 22 July 10:30 AM
+                    {{ $mailData['match']->startTime ?? 'Still to be scheduled' }}
                 </h2>
                 <div class="image_container">
-                    <img class="logo" src="{{ url('uploads/logo/sems_logo.png') }}" alt="Sems_logo">
-                    <h3>Pratik</h3>
+                    <img class="logo" src="{{ url('uploads/logo/'. $mailData['participants'][1]['teamLogo']) }}" alt="Sems_logo">
+                    <h3>{{ $mailData['participants'][1]['name'] }}</h3>
                 </div>
             </div>
             <button class="button">View Fixtures</button>
         </div>
         <div>
             <h1>WHAT CAN YOU EXPECT FROM OUR DEDICATED COVERAGE ?</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem voluptatibus optio deleniti ab natus, molestiae ex a sint sapiente, at neque cumque quaerat officiis corporis incidunt sit labore ducimus! Natus quis enim amet nisi deleniti, ducimus odio repellendus aliquid, exercitationem ad impedit facilis vero blanditiis laudantium praesentium earum eligendi delectus non consectetur! Tenetur nam quaerat iste hic nostrum maiores et optio, dicta veritatis non beatae ullam praesentium consectetur, laboriosam ducimus quibusdam? Quis voluptatibus mollitia magni.</p>
             <button class="button">Stay Up To Date</button>
         </div>
 

@@ -5,41 +5,26 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MatchSchedule extends Mailable
+class MatchSchedule extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
-    public $mailData;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($mailData)
+    public function __construct(public array $mailData)
     {
-        $this->mailData=$mailData;
+        $this->mailData = $mailData;
+        $this->afterCommit(); // Send after database transaction is committed
     }
 
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: $this->mailData['subject'],
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.matches.match_schedule',
-        );
+        return $this->subject($this->mailData['subject'])
+                    ->view('emails.matches.match_schedule')
+                    ->with($this->mailData);
     }
 
     /**
