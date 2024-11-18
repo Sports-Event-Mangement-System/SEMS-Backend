@@ -30,7 +30,7 @@ class ScheduleController extends Controller
             ], 404);
         }
 
-        $teams = $tournament->teams;
+        $teams = $tournament->teams->where('status', 1);
         $formattedDate = now()->format('Y-m-d');
         $registrationEndDate = $formattedDate >= $tournament->re_date;
         if (! $registrationEndDate) {
@@ -39,7 +39,7 @@ class ScheduleController extends Controller
             if (count($teams) < 2) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'At least 2 teams are required to generate matches.',
+                    'message' => 'At least 2 Active teams are required to generate matches.',
                 ], 400);
             }
             $max_teams = count($teams);
