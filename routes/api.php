@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ScheduleController;
@@ -33,6 +34,9 @@ Route::post('/update/user/{id}', [AuthController::class, 'updateUser'])->middlew
 Route::post('/update/profile_image/{id}', [AuthController::class, 'updateProfileImage'])->middleware('auth:sanctum');
 Route::delete('/delete/profile_image/{id}', [AuthController::class, 'deleteProfileImage'])->middleware('auth:sanctum');
 // Route::post('/update/password/{id}', [AuthController::class, 'updatePassword'])->middleware( 'auth:sanctum' );
+
+/************************************************************** Dashboard *************************************************************/
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth:sanctum');
 
 /************************************************************** Contacts Form *************************************************************/
 Route::get('/contacts', [ContactController::class, 'index'])->middleware('auth:sanctum');
