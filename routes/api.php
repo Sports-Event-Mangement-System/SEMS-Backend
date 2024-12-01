@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SiteSettingController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use Illuminate\Http\Request;
@@ -82,3 +83,7 @@ Route::post('update/match/{id}', [MatchController::class, 'updateMatch'])->middl
 
 /************************************************************** Email  *************************************************************/
 Route::get('/send/match/schedule', [MatchController::class, 'sendMatchSchedule']);
+
+/************************************************************** Site Settings  *************************************************************/
+Route::get('/site/settings', [SiteSettingController::class, 'index']);
+Route::post('/update/site/email/settings', [SiteSettingController::class, 'updateEmailSettings'])->middleware('auth:sanctum');
