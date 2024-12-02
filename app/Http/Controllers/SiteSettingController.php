@@ -17,14 +17,13 @@ class SiteSettingController extends Controller
         ]);
     }
 
-    public function updateEmailSettings(Request $request)
+    public function updateEmailSettings(EmailSettingRequest $request)
     {
-        $siteSetting = SiteSetting::first();
-        $siteSetting->update($request->all());
+        SiteSetting::createOrFirst($request->all());
         return response()->json([
             'status' => true,
             'message' => 'Site email settings updated successfully',
-            'data' => $siteSetting,
+            'data' => SiteSetting::first(),
         ]);
     }
 
