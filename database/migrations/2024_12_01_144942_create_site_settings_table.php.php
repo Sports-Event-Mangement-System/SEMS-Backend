@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('site_name');
-            $table->string('site_description');
-            $table->string('site_logo');
-            $table->string('site_favicon');
-            $table->string('site_email');
-            $table->string('mail_mailer');
-            $table->string('mail_host');
-            $table->string('mail_port');
-            $table->string('mail_username');
-            $table->string('mail_password');
+            $table->string('site_name')->nullable();
+            $table->string('site_description')->nullable();
+            $table->string('site_logo')->nullable();
+            $table->string('site_favicon')->nullable();
+            $table->string('site_email')->nullable();
+            $table->string('mail_mailer')->nullable();
+            $table->string('mail_host')->nullable();
+            $table->string('mail_port')->nullable();
+            $table->string('mail_username')->nullable();
+            $table->string('mail_password')->nullable();
             $table->timestamps();
         });
     }
