@@ -47,9 +47,9 @@ class DashboardController extends Controller
             );
         }
         $events = array(
-            $st_tournmanet_this_month,
-            $rs_tournmanet_this_month,
-            $re_tournmanet_this_month,
+            $st_tournmanet_this_month ?? null,
+            $rs_tournmanet_this_month ?? null,
+            $re_tournmanet_this_month ?? null,
         );
 
         return response()->json([
