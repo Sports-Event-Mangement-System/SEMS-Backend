@@ -358,13 +358,4 @@ class MatchController extends Controller
         });
         return $points_table;
     }
-    /**
-     * Send match schedule
-     *
-     * @param  Request  $request
-     */
-    public function sendMatchSchedule(Request $request)
-    {
-        return view('emails.matches.match_schedule');
-    }
 }
