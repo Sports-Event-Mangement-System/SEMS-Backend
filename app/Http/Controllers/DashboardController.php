@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Player;
 use App\Models\Team;
 use App\Models\Tournament;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -26,7 +25,7 @@ class DashboardController extends Controller
         foreach ($starting_this_month_tournaments as $starting_this_month_tournament) {
             $tournament_name = $starting_this_month_tournament->t_name;
             $st_tournmanet_this_month = array(
-                'event_name' => $tournament_name .'Tourament Starting this month',
+                'event_name' => $tournament_name .' Tourament Starting this month',
                 'event_date' => $starting_this_month_tournament->ts_date,
             );
         }
@@ -34,7 +33,7 @@ class DashboardController extends Controller
         foreach ($registrations_started_this_month as $registration_starting_this_month) {
             $tournament_name = $registration_starting_this_month->t_name;
             $rs_tournmanet_this_month = array(
-                'event_name' => $tournament_name .'Tournament Registrations started',
+                'event_name' => $tournament_name .' Tournament Registrations started',
                 'event_date' => $registration_starting_this_month->rs_date,
             );
         }
@@ -42,7 +41,7 @@ class DashboardController extends Controller
         foreach ($registrations_ended_this_month as $registration_ended_this_month) {
             $tournament_name = $registration_ended_this_month->t_name;
             $re_tournmanet_this_month = array(
-                'event_name' => $tournament_name .'Tournament Registrations ended',
+                'event_name' => $tournament_name .' Tournament Registrations ended',
                 'event_date' => $registration_ended_this_month->re_date,
             );
         }
