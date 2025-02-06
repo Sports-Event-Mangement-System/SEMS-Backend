@@ -74,6 +74,7 @@ Route::get('/players', [PlayerController::class, 'index'])->middleware('auth:san
 Route::get('/tiesheet/tournament/{id}', [ScheduleController::class, 'tiesheetGenerator'])->middleware('auth:sanctum');
 
 /************************************************************** Matches  *************************************************************/
+
 Route::get('/tournament/matches', [MatchController::class, 'index']);
 Route::post('/save/matches/tournament/{id}', [MatchController::class, 'saveMatches'])->middleware('auth:sanctum');
 Route::get('/tiesheet/response/{id}', [MatchController::class, 'getTiesheetResponse']);
@@ -84,3 +85,6 @@ Route::post('update/match/{id}', [MatchController::class, 'updateMatch'])->middl
 /************************************************************** Site Settings  *************************************************************/
 Route::get('/site/settings', [SiteSettingController::class, 'index']);
 Route::post('/update/site/email/settings', [SiteSettingController::class, 'updateEmailSettings'])->middleware('auth:sanctum');
+
+/************************************************************** Predictions  *************************************************************/
+Route::get('/predict/match/{id}', [MatchController::class, 'predictNextMatch']);
