@@ -201,6 +201,7 @@ class MatchController extends Controller
                     if ($request->matchWinner !== null) {
                         $next_match_participants[$index]['id'] = $winner_team->id;
                         $next_match_participants[$index]['name'] = $winner_team->team_name;
+                        $next_match_participants[$index]['teamLogo'] = url('uploads/teams/' . $winner_team->team_logo);
                     } else {
                         $next_match_participants[$index]['id'] = null;
                         $next_match_participants[$index]['name'] = null;
@@ -227,7 +228,6 @@ class MatchController extends Controller
             $response_data = $tiesheet_response->response_data;
             $points_table = $tiesheet_response->points_table;
 
-            // Update points table if it exists (round robin)
             if ($points_table) {
                 $points_table = $this->updatePointsTable(
                     $points_table,
@@ -357,5 +357,120 @@ class MatchController extends Controller
             return strcmp($a['name'], $b['name']);
         });
         return $points_table;
+    }
+
+    /**
+     * Predict next match outcome
+     *
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function predictNextMatch(int $id) : JsonResponse
+    {
+        $match = Matches::findOrFail($id);
+        $tournament = Tournament::findOrFail($match->tournament_id);
+        if ($tournament->tournament_type === 'round-robin') {
+
+            $participants = json_decode($match->participants, true);
+            if (count($participants) === 2) {
+                $predictions = $this->calculatePrediction($participants, $tournament->tournament_type, $tournament);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Predictions generated successfully',
+                'predictions' => $predictions ?? [],
+            ]);
+        }
+
+        $currentParticipants = json_decode($match->participants, true);
+
+        $prediction = $this->calculatePrediction($currentParticipants, $tournament->tournament_type, $tournament);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Prediction generated successfully',
+            'predictions' => $prediction,
+        ]);
+    }
+
+    /**
+     * Calculate prediction based on tournament format
+     *
+     * @param  array  $currentParticipants
+     * @param  array  $nextParticipants
+     * @param  string  $format
+     * @param  object  $tournament
+     * @return array
+     */
+    private function calculatePrediction(array $currentParticipants, string $format, Tournament $tournament) : array
+    {
+        $prediction = [
+            'team1_win' => 0,
+            'team2_win' => 0,
+        ];
+
+        if ($format === 'single-elimination') {
+            $team1Wins = $this->countPreviousWins($currentParticipants[0]['id']);
+            $team2Wins = $this->countPreviousWins($currentParticipants[1]['id']);
+
+            $total = $team1Wins + $team2Wins;
+            if ($total > 0) {
+                $prediction['team1_win'] = ($team1Wins / $total) * 100;
+                $prediction['team2_win'] = ($team2Wins / $total) * 100;
+            } else {
+                $prediction['team1_win'] = 50;
+                $prediction['team2_win'] = 50;
+            }
+        } elseif ($format === 'round-robin') {
+            $tiesheetResponse = TiesheetResponse::where('tournament_id', $tournament->id)->first();
+            if ($tiesheetResponse && $tiesheetResponse->points_table) {
+                $pointsTable = $tiesheetResponse->points_table;
+
+                $team1Points = $this->getTeamPoints($pointsTable, $currentParticipants[0]['id']);
+                $team2Points = $this->getTeamPoints($pointsTable, $currentParticipants[1]['id']);
+
+                $total = $team1Points + $team2Points;
+                if ($total > 0) {
+                    $prediction['team1_win'] = ($team1Points / $total) * 100;
+                    $prediction['team2_win'] = ($team2Points / $total) * 100;
+                }
+            }
+        }
+
+        return $prediction;
+    }
+
+    /**
+     * Count previous wins for a team
+     *
+     * @param  int  $teamId
+     * @return int
+     */
+    private function countPreviousWins(int $teamId) : int
+    {
+        return Matches::where(function($query) use ($teamId) {
+                $query->where('team_id_1', $teamId)
+                    ->orWhere('team_id_2', $teamId);
+            })
+            ->where('match_winner', $teamId)
+            ->count();
+    }
+
+    /**
+     * Get team points from points table
+     *
+     * @param  array  $pointsTable
+     * @param  int  $teamId
+     * @return int
+     */
+    private function getTeamPoints(array $pointsTable, int $teamId) : int
+    {
+        foreach ($pointsTable as $team) {
+            if ($team['id'] === $teamId) {
+                return $team['points'];
+            }
+        }
+        return 0;
     }
 }
