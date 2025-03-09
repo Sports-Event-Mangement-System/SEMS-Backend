@@ -135,7 +135,7 @@ class TeamController extends Controller
         }
 
         return response()->json([
-            'message' => $team->team_name . 'status updated successfully',
+            'message' => $team->team_name . ' status updated successfully',
             'status' => true,
         ]);
     }

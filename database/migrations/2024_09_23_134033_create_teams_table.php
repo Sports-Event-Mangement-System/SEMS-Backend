@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('team_name');
             $table->string('team_logo')->nullable();
             $table->string('coach_name');
-            $table->string('phone_number');
+            $table->string('phone_number')  ;
             $table->string('email')->nullable();
             $table->string('address');
             $table->boolean('status')->default(0);

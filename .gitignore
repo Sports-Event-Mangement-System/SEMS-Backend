@@ -16,6 +16,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-/public/uploads/tournaments/*
+# /public/uploads/tournaments/*
 /public/uploads/profiles/*
-/public/uploads/teams/*
+# /public/uploads/teams/*

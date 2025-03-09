@@ -167,7 +167,13 @@ class TournamentController extends Controller
 
     public function destroy($id): JsonResponse
     {
-        $tournament = Tournament::find($id);
+        $tournament = Tournament::findOrFail($id);
+        foreach ($tournament->teams as $team) {
+            $team->players()->delete();
+        }
+        $tournament->teams()->delete();
+        $tournament->matches()->delete();
+        $tournament->tiesheets()->delete();
         $tournament->delete();
         return response()->json([
             'message' => 'Tournament deleted successfully',

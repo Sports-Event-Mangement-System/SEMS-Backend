@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tournaments', function (Blueprint $table) {
             $table->id();
             $table->string('t_name');
-            $table->string('t_description');
+            $table->string('t_description', 1500);
             $table->string('t_images')->nullable();
             $table->string('prize_pool')->nullable();
             $table->date('ts_date')->nullable();

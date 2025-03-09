@@ -107,14 +107,14 @@
             <h1>KICKOFF MATCH</h1>
             <div class="match">
                 <div class="image_container">
-                    <img class="logo" src="{{ url('uploads/logo/'. $mailData['participants'][0]['teamLogo']) }}" alt="Sems_logo">
+                    <img class="logo" src="{{ $mailData['participants'][0]['teamLogo'] ?? '' }}" alt="Sems_logo">
                     <h3>{{ $mailData['participants'][0]['name'] }}</h3>
                 </div>
                 <h2 class="match_schedule">
                     {{ $mailData['match']->startTime ?? 'Still to be scheduled' }}
                 </h2>
                 <div class="image_container">
-                    <img class="logo" src="{{ url('uploads/logo/'. $mailData['participants'][1]['teamLogo']) }}" alt="Sems_logo">
+                    <img class="logo" src="{{ url($mailData['participants'][1]['teamLogo'] ?? '') }}" alt="Sems_logo">
                     <h3>{{ $mailData['participants'][1]['name'] }}</h3>
                 </div>
             </div>
