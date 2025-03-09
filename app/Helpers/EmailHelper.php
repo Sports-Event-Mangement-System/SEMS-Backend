@@ -44,78 +44,45 @@ class EmailHelper
         $tournament = Tournament::find($match->tournament_id);
         $match_participants = MatchHelper::processParticipants($match, $tournament);
         $team1 = Team::find($match->team_id_1);
-        $team2 = Team::find($match->team_id_2);
+        $team2 = $match->team_id_2 ? Team::find($match->team_id_2) : null;
 
-        // Prepare recipients in batches with their contexts
-        $recipients = collect();
+        // Prepare recipients for teams only
+        $teamEmails = collect();
 
-        // Team Management
-        $teamEmails = collect()
-            ->when($team1->email, fn ($collection) => $collection->push([
+        // Add team1 email
+        if ($team1 && $team1->email) {
+            $teamEmails->push([
                 'email' => $team1->email,
                 'type' => 'team',
                 'team' => $team1,
                 'opponent' => $team2
-            ]))
-            ->when($team2->email, fn ($collection) => $collection->push([
+            ]);
+        }
+
+        // Add team2 email if team2 exists
+        if ($team2 && $team2->email) {
+            $teamEmails->push([
                 'email' => $team2->email,
                 'type' => 'team',
                 'team' => $team2,
                 'opponent' => $team1
-            ]));
-
-        // Players
-        // $playerEmails = collect()
-        //     ->merge($team1->players()->select('player_email')->get()->map(fn ($player) => [
-        //         'email' => $player->player_email,
-        //         'type' => 'player',
-        //         'team' => $team1,
-        //         'opponent' => $team2
-        //     ]))
-        //     ->merge($team2->players()->select('player_email')->get()->map(fn ($player) => [
-        //         'email' => $player->player_email,
-        //         'type' => 'player',
-        //         'team' => $team2,
-        //         'opponent' => $team1
-        //     ]));
-
-        // Followers
-        $followerEmails = Follower::where('team_id', $team1->id)
-            ->orWhere('team_id', $team2->id)
-            ->get()
-            ->map(fn ($follower) => [
-                'email' => $follower->user_email,
-                'type' => 'follower',
-                'team' => $follower->team_id == $team1->id ? $team1 : $team2,
-                'opponent' => $follower->team_id == $team1->id ? $team2 : $team1
             ]);
+        }
 
-        // Merge all recipients and ensure unique emails
-        $recipients = $teamEmails
-            // ->merge($playerEmails)
-            ->merge($followerEmails ?? collect())
-            ->filter()
-            ->unique('email');
+        // Send emails to teams
+        $teamEmails->each(function ($recipient) use ($match, $tournament, $match_participants) {
+            $opponentName = $recipient['opponent'] ? $recipient['opponent']->team_name : 'No Opponent (Walkover)';
+            $subject = "Your Team {$recipient['team']->team_name} has a scheduled match against {$opponentName} in {$tournament->t_name} tournament";
 
-        // Send emails in batches
-        $recipients->chunk(50)->each(function ($chunk) use ($match, $tournament, $match_participants) {
-            foreach ($chunk as $recipient) {
-                $subject = match ($recipient['type']) {
-                    'team' => "Your Team {$recipient['team']->team_name} has a scheduled match against {$recipient['opponent']->team_name}",
-                    'player' => "Your Team {$recipient['team']->team_name} has an upcoming match against {$recipient['opponent']->team_name}",
-                    'follower' => "Upcoming Match Alert: {$recipient['team']->team_name} vs {$recipient['opponent']->team_name}",
-                } . " in {$tournament->t_name} tournament";
-
-                Mail::to($recipient['email'])->queue(new MatchSchedule([
-                    'subject' => $subject,
-                    'match' => $match,
-                    'participants' => $match_participants,
-                    'tournament' => $tournament,
-                    'recipientType' => $recipient['type'],
-                    'supportedTeam' => $recipient['team'],
-                    'opponentTeam' => $recipient['opponent']
-                ]));
-            }
+            Mail::to($recipient['email'])->queue(new MatchSchedule([
+                'subject' => $subject,
+                'match' => $match,
+                'participants' => $match_participants,
+                'tournament' => $tournament,
+                'recipientType' => $recipient['type'],
+                'supportedTeam' => $recipient['team'],
+                'opponentTeam' => $recipient['opponent']
+            ]));
         });
     }
 }

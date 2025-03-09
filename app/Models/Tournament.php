@@ -24,6 +24,10 @@ class Tournament extends Model
     {
         return $this->hasMany(Matches::class);
     }
+    public function tiesheets()
+    {
+        return $this->hasMany(TiesheetResponse::class);
+    }
 
     public function followers()
     {

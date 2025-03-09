@@ -55,6 +55,9 @@ class AuthController extends Controller
                 'message' => 'Invalid Credentials',
             ], 401);
         }
+        if ($user->profile_image) {
+            $user['profile_image'] = url('uploads/profiles/'.$user->profile_image);
+        }
         $token = $user->createToken($user->name.'-AuthToken')->plainTextToken;
         $user['remember_me'] = $request->remember_me;
         return response()->json([

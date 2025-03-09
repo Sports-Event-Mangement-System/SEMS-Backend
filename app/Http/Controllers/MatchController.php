@@ -173,7 +173,7 @@ class MatchController extends Controller
      * @param  int  $id
      * @return JsonResponse
      */
-    public function updateMatch(Request $request, int $id) : JsonResponse
+    public function updateMatch(UpdateMatchRequest $request, int $id) : JsonResponse
     {
         $match = Matches::findOrFail($id);
         $winner_team = Team::find($request->matchWinner);
@@ -348,7 +348,7 @@ class MatchController extends Controller
     private function sortPointsTable(array $points_table) : array
     {
         usort($points_table, function ($a, $b) {
-            if ($b['points'] !== $a['points']) {
+            if ($b['pointsca'] !== $a['points']) {
                 return $b['points'] - $a['points'];
             }
             if ($b['matches_played'] !== $a['matches_played']) {
@@ -398,7 +398,6 @@ class MatchController extends Controller
      * Calculate prediction based on tournament format
      *
      * @param  array  $currentParticipants
-     * @param  array  $nextParticipants
      * @param  string  $format
      * @param  object  $tournament
      * @return array
