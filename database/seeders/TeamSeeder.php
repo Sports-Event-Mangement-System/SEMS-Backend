@@ -12,6 +12,7 @@ class TeamSeeder extends Seeder
      */
     public function run(): void
     {
+        Team::truncate();
         $team = Team::create([
             'tournament_id' => 1,
             'team_name' => 'Real Madrid',
