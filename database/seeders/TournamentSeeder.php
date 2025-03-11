@@ -12,6 +12,7 @@ class TournamentSeeder extends Seeder
      */
     public function run(): void
     {
+        Tournament::truncate();
         $tournament = Tournament::create([
             't_name' => 'Football Champions League',
             't_description' => 'The Football Champions League is one of the most prestigious and widely followed club football tournaments in the world.',
