@@ -12,11 +12,10 @@ class TeamSeeder extends Seeder
      */
     public function run(): void
     {
-        Team::truncate();
         $team = Team::create([
             'tournament_id' => 1,
             'team_name' => 'Real Madrid',
-            'team_logo' => '1739035582_real madrid.png',
+            'team_logo' => '1739035582_realmadrid.png',
             'coach_name' => 'Carl Santiago',
             'phone_number' => '+1 (275) 519-8842',
             'email' => 'realmadrid@gmail.com',
@@ -49,7 +48,7 @@ class TeamSeeder extends Seeder
         $team = Team::create([
             'tournament_id' => 1,
             'team_name' => 'Manchester United',
-            'team_logo' => '1739035885_Manchester_United_FC_crest.svg (1).png',
+            'team_logo' => '1739035885_Manchester_United_FC.png',
             'coach_name' => 'Ten Hag',
             'phone_number' => '+1 (275) 519-8842',
             'email' => 'manchesterunited@gmail.com',
@@ -60,7 +59,7 @@ class TeamSeeder extends Seeder
         $team = Team::create([
             'tournament_id' => 1,
             'team_name' => 'Chelsea',
-            'team_logo' => '1739036148_Chelsea Football Players.jpeg',
+            'team_logo' => '1739036148_Chelsea.jpeg',
             'coach_name' => 'Ten Hag',
             'phone_number' => '+1 (275) 519-8842',
             'email' => 'chelsea@gmail.com',

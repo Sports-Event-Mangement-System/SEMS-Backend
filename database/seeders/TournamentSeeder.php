@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Team;
 use App\Models\Tournament;
 use Illuminate\Database\Seeder;
 
@@ -12,7 +13,13 @@ class TournamentSeeder extends Seeder
      */
     public function run(): void
     {
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        Team::truncate();
         Tournament::truncate();
+
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $tournament = Tournament::create([
             't_name' => 'Football Champions League',
             't_description' => 'The Football Champions League is one of the most prestigious and widely followed club football tournaments in the world.',
