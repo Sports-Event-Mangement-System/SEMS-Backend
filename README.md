@@ -1,6 +1,6 @@
 # Sports Event Management System (Backend)
 
-A RESTful API backend for managing sports events, teams, players, and matches. Designed to work with a React frontend application.
+A RESTful API backend for managing sports events, teams, players, and matches. Designed to work with a frontend application.
 
 ## 🚀 Installation Steps
 
@@ -126,7 +126,7 @@ php artisan serve
   - 28 scheduled matches
   - Test user Admin/User accounts
 
-** 🔑 Test Accounts Created by Seeder:**
+## 🔑 Test Accounts Created by Seeder:
 ```bash
 Admin Account: 👨🏻‍💻
 Email: admin@admin.com
